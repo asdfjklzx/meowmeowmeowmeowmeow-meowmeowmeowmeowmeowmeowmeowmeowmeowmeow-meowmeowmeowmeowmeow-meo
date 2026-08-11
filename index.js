@@ -24,6 +24,27 @@
   const NavigationModule = metro.findByProps("useNavigation");
   const GuildStore = metro.findByStoreName("GuildStore");
 
+  // resilient FluxDispatcher - some builds don't expose it on common
+  const FluxDispatcher = common.FluxDispatcher
+    || metro.findByProps("dispatch", "subscribe", "_actionHandlers")
+    || metro.findByProps("dispatch", "register")
+    || null;
+
+  function dispatchFlux(payload) {
+    if (!FluxDispatcher || typeof FluxDispatcher.dispatch !== "function") {
+      showToast("[Spoofer] FluxDispatcher not found on this build");
+      return false;
+    }
+    try {
+      FluxDispatcher.dispatch(payload);
+      return true;
+    } catch (err) {
+      warn("dispatch failed", err);
+      showToast("[Spoofer] dispatch error: " + (err.message || "unknown"));
+      return false;
+    }
+  }
+
   // ─── State ───────────────────────────────────────────────────────────────────
 
   const originalMessages = new Map();
@@ -148,7 +169,26 @@
   }
 
   function getCurrentChannelId() {
-    return ChannelSelection?.getChannelId() || ChannelModule?.getChannelId?.() || null;
+    // try every known way to get the current channel
+    try {
+      const a = ChannelSelection?.getChannelId?.();
+      if (a) return a;
+    } catch {}
+    try {
+      const b = ChannelModule?.getChannelId?.();
+      if (b) return b;
+    } catch {}
+    try {
+      const sel = metro.findByProps("getLastSelectedChannelId");
+      const c = sel?.getChannelId?.() || sel?.getLastSelectedChannelId?.();
+      if (c) return c;
+    } catch {}
+    try {
+      const sel2 = metro.findByProps("getCurrentlySelectedChannelId");
+      const d = sel2?.getCurrentlySelectedChannelId?.();
+      if (d) return d;
+    } catch {}
+    return null;
   }
 
   // ─── Date Parsing ───────────────────────────────────────────────────────────
@@ -650,7 +690,7 @@
         .then((embeds) => {
           if (!embeds || !embeds.length) return;
           try {
-            common.FluxDispatcher.dispatch({
+            dispatchFlux({
               type: "MESSAGE_UPDATE",
               message: Object.assign({}, message, { embeds }),
               otherPluginBypass: true,
@@ -714,15 +754,16 @@
         };
       }
 
-      common.FluxDispatcher.dispatch({
+      const dispatched = dispatchFlux({
         type: "MESSAGE_CREATE",
         channelId,
         message,
         otherPluginBypass: true,
       });
+      if (!dispatched) return;
 
       try {
-        common.FluxDispatcher.dispatch({
+        dispatchFlux({
           type: "MESSAGE_ACK",
           channelId,
           messageId: id,
@@ -782,7 +823,7 @@
       for (const rec of list) {
         if (rec && rec.id && rec.channelId) {
           try {
-            common.FluxDispatcher.dispatch({
+            dispatchFlux({
               type: "MESSAGE_DELETE",
               id: rec.id,
               channelId: rec.channelId,
@@ -1841,11 +1882,20 @@
   // ─── Patching: Message Actions & Context Menu ───────────────────────────────
 
   function patchMessageActions() {
-    dispatchGuard = patcher.before("dispatch", common.FluxDispatcher, (args) => {
-      const [event] = args;
-      if (event.type === "MESSAGE_UPDATE" && event.message?.fake && !event.otherPluginBypass && !isLocalEditing)
-        return [];
-    });
+    if (FluxDispatcher) {
+      try {
+        dispatchGuard = patcher.before("dispatch", FluxDispatcher, (args) => {
+          const [event] = args;
+          if (event.type === "MESSAGE_UPDATE" && event.message?.fake && !event.otherPluginBypass && !isLocalEditing)
+            return [];
+        });
+      } catch (err) { warn("dispatchGuard patch failed", err); }
+    }
+
+    if (!MessageActions) {
+      warn("MessageActions not found - edit patching skipped");
+      return;
+    }
 
     patches.push(patcher.before("editMessage", MessageActions, (args) => {
       const [channelId, messageId, payload] = args;
@@ -1861,7 +1911,7 @@
           plugin.storage._lastUpdate = Date.now();
         }
 
-        common.FluxDispatcher.dispatch({
+        dispatchFlux({
           type: "MESSAGE_UPDATE",
           message: { ...original, content: payload.content, edited_timestamp: null },
           otherPluginBypass: true,
@@ -2457,10 +2507,12 @@
       } catch {}
 
       try {
-        channelSelectSub = common.FluxDispatcher.subscribe("CHANNEL_SELECT", (event) => {
-          const channelId = event?.channelId;
-          if (channelId) setTimeout(() => replayChannel(channelId), 500);
-        });
+        if (FluxDispatcher) {
+          channelSelectSub = FluxDispatcher.subscribe("CHANNEL_SELECT", (event) => {
+            const channelId = event?.channelId;
+            if (channelId) setTimeout(() => replayChannel(channelId), 500);
+          });
+        }
       } catch {}
 
       const currentChannel = getCurrentChannelId();
@@ -2476,7 +2528,7 @@
       cleanupCallbacks = [];
 
       if (contextMenuPatch) { contextMenuPatch(); contextMenuPatch = null; }
-      if (channelSelectSub) { common.FluxDispatcher.unsubscribe("CHANNEL_SELECT", channelSelectSub); channelSelectSub = null; }
+      if (channelSelectSub) { try { FluxDispatcher?.unsubscribe("CHANNEL_SELECT", channelSelectSub); } catch {} channelSelectSub = null; }
       if (dispatchGuard) { dispatchGuard(); dispatchGuard = null; }
 
       patches.forEach((unpatch) => unpatch());
