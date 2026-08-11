@@ -9,14 +9,50 @@
     if (DEBUG) console.warn("[Spoofer]", ...args);
   }
 
-  // ─── Module References ───────────────────────────────────────────────────────
+  // ─── Module References (null-safe: must never throw at load) ─────────────────
 
-  const { FormSection, FormInput, FormRow } = components.Forms;
+  const _loadErrors = [];
+
+  const Forms = (components && components.Forms) || {};
+
+  // Newer Discord builds removed components.Forms - try to recover the pieces
+  let _FormSection = Forms.FormSection;
+  let _FormInput = Forms.FormInput;
+  let _FormRow = Forms.FormRow;
+  let _FormSwitch = Forms.FormSwitch;
+  let _FormDivider = Forms.FormDivider;
+
+  if (!_FormRow) {
+    try {
+      const alt = metro.findByProps("FormRow", "FormSection")
+        || metro.findByProps("FormRow")
+        || null;
+      if (alt) {
+        _FormSection = _FormSection || alt.FormSection;
+        _FormInput = _FormInput || alt.FormInput;
+        _FormRow = _FormRow || alt.FormRow;
+        _FormSwitch = _FormSwitch || alt.FormSwitch;
+        _FormDivider = _FormDivider || alt.FormDivider;
+      }
+    } catch {}
+  }
+  // if FormSwitch is missing, try dedicated module
+  if (!_FormSwitch) {
+    try { _FormSwitch = metro.findByProps("FormSwitch")?.FormSwitch; } catch {}
+  }
+
+  const FormSection = _FormSection;
+  const FormInput = _FormInput;
+  const FormRow = _FormRow;
+  const FormSwitch = _FormSwitch;
+  const FormContainer = Forms.Form || common?.React?.Fragment;
+  if (!_FormRow) _loadErrors.push("Forms.FormRow");
+
   const UserStore = metro.findByProps("getCurrentUser", "getUser");
   const ChannelModule = metro.findByProps("getChannel", "getChannelId");
   const ChannelSelection = metro.findByProps("getChannelId", "getLastSelectedChannelId");
   const ActionSheetModule = metro.findByProps("openLazy", "hideActionSheet");
-  const ActionSheetRow = metro.findByProps("ActionSheetRow")?.ActionSheetRow ?? components.Forms.FormRow;
+  const ActionSheetRow = metro.findByProps("ActionSheetRow")?.ActionSheetRow ?? Forms.FormRow;
   const MessageStore = metro.findByStoreName("MessageStore");
   const UserStoreByName = metro.findByStoreName("UserStore");
   const MessageActions = metro.findByProps("sendMessage", "startEditMessage", "editMessage");
@@ -25,7 +61,7 @@
   const GuildStore = metro.findByStoreName("GuildStore");
 
   // resilient FluxDispatcher - some builds don't expose it on common
-  const FluxDispatcher = common.FluxDispatcher
+  const FluxDispatcher = (common && common.FluxDispatcher)
     || metro.findByProps("dispatch", "subscribe", "_actionHandlers")
     || metro.findByProps("dispatch", "register")
     || null;
@@ -2159,7 +2195,7 @@
       common.React.createElement(FormRow, {
         label: "Link Previews",
         subLabel: "Show embeds for links in fake messages (YouTube, websites, images).",
-        trailing: common.React.createElement(components.Forms.FormSwitch, {
+        trailing: common.React.createElement(FormSwitch, {
           value: plugin.storage.embedsEnabled !== false,
           onValueChange: (v) => { plugin.storage.embedsEnabled = v; },
         }),
@@ -2234,7 +2270,7 @@
       common.React.createElement(FormRow, {
         label: "UK time (GMT/BST)" + (isUkTimeEnabled() ? " - ON" : " - off"),
         subLabel: "Automatic timestamps use UK time, and times you enter are treated as UK. Handles BST/GMT automatically.",
-        trailing: common.React.createElement(components.Forms.FormSwitch, {
+        trailing: common.React.createElement(FormSwitch, {
           value: isUkTimeEnabled(),
           onValueChange: (v) => { plugin.storage.ukTime = v; setTick((k) => k + 1); },
         }),
@@ -2246,7 +2282,7 @@
         subLabel: isUkTimeEnabled()
           ? "Turn off UK time above to use this."
           : plugin.storage.useUTC ? "Time will be the same for everyone" : "Time will adjust to viewer's timezone",
-        trailing: common.React.createElement(components.Forms.FormSwitch, {
+        trailing: common.React.createElement(FormSwitch, {
           value: plugin.storage.useUTC || false,
           onValueChange: (v) => { plugin.storage.useUTC = v; setTick((k) => k + 1); },
         }),
@@ -2407,7 +2443,7 @@
       common.React.createElement(FormRow, {
         label: "Render as my own profile (experimental)",
         subLabel: "Makes opening this user's profile show the self-profile layout (Edit Profile button). May break that profile screen; turn off if it crashes.",
-        trailing: common.React.createElement(components.Forms.FormSwitch, {
+        trailing: common.React.createElement(FormSwitch, {
           value: plugin.storage.profileSelf === true,
           onValueChange: (v) => { plugin.storage.profileSelf = v; },
         }),
@@ -2487,13 +2523,14 @@
 
       // ── Load-time diagnostics: report any missing critical modules ──
       try {
-        const missing = [];
+        const missing = _loadErrors.slice();
         if (!UserStore) missing.push("UserStore");
         if (!ChannelModule) missing.push("ChannelModule");
         if (!ChannelSelection) missing.push("ChannelSelection");
         if (!UserStoreByName) missing.push("UserStoreByName");
         if (!FluxDispatcher) missing.push("FluxDispatcher");
         if (!MessageActions) missing.push("MessageActions");
+        if (!FormRow) missing.push("FormRow");
         const cmdApi = globalThis.vendetta?.commands
           || globalThis.bunny?.commands
           || globalThis.__bunny__?.commands
@@ -2568,7 +2605,7 @@
       let nav = null;
       try { if (NavigationModule?.useNavigation) nav = NavigationModule.useNavigation(); } catch {}
 
-      const Container = props?.inSheet ? common.React.Fragment : components.Forms.Form;
+      const Container = props?.inSheet ? common.React.Fragment : FormContainer;
 
       return common.React.createElement(Container, {},
         common.React.createElement(FormRow, {
