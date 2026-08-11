@@ -736,6 +736,7 @@
       } catch {}
     } catch (err) {
       warn("createFakeMessage failed", err);
+      showToast("Message dispatch failed: " + (err.message || "unknown"));
     }
   }
 
@@ -826,80 +827,98 @@
   }
 
   async function runConversation() {
-    const channelId = getCurrentChannelId();
-    if (!channelId) {
-      showToast("No channel selected.");
-      return;
-    }
-
-    const text = plugin.storage.conversationText || "";
-    const lines = text.split(/\r?\n/);
-    const useUTC = isUkTimeEnabled() ? false : plugin.storage.useUTC || false;
-    const now = nowDate();
-    const base = {
-      y: plugin.storage.customYear || now.getFullYear(),
-      mo: plugin.storage.customMonth || now.getMonth() + 1,
-      d: plugin.storage.customDay || now.getDate(),
-    };
-
-    const items = [];
-    for (const line of lines) {
-      const parsed = parseConversationLine(line);
-      if (!parsed || !parsed.content.trim()) continue;
-
-      let uid = parsed.uid;
-      if (/^(me|self)$/i.test(uid)) uid = UserStore.getCurrentUser()?.id;
-      else if (/^(them|they|user)$/i.test(uid)) uid = (plugin.storage.userId || "").trim();
-      if (!uid) continue;
-
-      const explicit = parsed.time ? parseTime(parsed.time, base, useUTC) : null;
-      items.push({ uid, content: parsed.content, reply: parsed.reply, explicit });
-    }
-
-    let cursor = nowDate().getTime();
-    for (const item of items) {
-      if (item.explicit) {
-        const t = new Date(item.explicit).getTime();
-        if (!isNaN(t)) { cursor = t; break; }
+    try {
+      const channelId = getCurrentChannelId();
+      if (!channelId) {
+        showToast("No channel selected.");
+        return;
       }
-    }
 
-    let count = 0;
-    const built = [];
+      const text = plugin.storage.conversationText || "";
+      if (!text.trim()) {
+        showToast("Conversation box is empty.");
+        return;
+      }
 
-    for (const item of items) {
-      let iso;
-      if (item.explicit) {
-        const t = new Date(item.explicit).getTime();
-        if (!isNaN(t)) {
-          cursor = t;
-          iso = new Date(t).toISOString();
+      const lines = text.split(/\r?\n/);
+      const useUTC = isUkTimeEnabled() ? false : plugin.storage.useUTC || false;
+      const now = nowDate();
+      const base = {
+        y: plugin.storage.customYear || now.getFullYear(),
+        mo: plugin.storage.customMonth || now.getMonth() + 1,
+        d: plugin.storage.customDay || now.getDate(),
+      };
+
+      const items = [];
+      for (const line of lines) {
+        const parsed = parseConversationLine(line);
+        if (!parsed || !parsed.content.trim()) continue;
+
+        let uid = parsed.uid;
+        if (/^(me|self)$/i.test(uid)) uid = UserStore.getCurrentUser()?.id;
+        else if (/^(them|they|user)$/i.test(uid)) uid = (plugin.storage.userId || "").trim();
+        if (!uid) {
+          log("Skipped line - no UID resolved:", line);
+          continue;
+        }
+
+        const explicit = parsed.time ? parseTime(parsed.time, base, useUTC) : null;
+        items.push({ uid, content: parsed.content, reply: parsed.reply, explicit });
+      }
+
+      if (!items.length) {
+        showToast("No valid lines. Format: me - hello");
+        return;
+      }
+
+      let cursor = nowDate().getTime();
+      for (const item of items) {
+        if (item.explicit) {
+          const t = new Date(item.explicit).getTime();
+          if (!isNaN(t)) { cursor = t; break; }
+        }
+      }
+
+      let count = 0;
+      const built = [];
+
+      for (const item of items) {
+        let iso;
+        if (item.explicit) {
+          const t = new Date(item.explicit).getTime();
+          if (!isNaN(t)) {
+            cursor = t;
+            iso = new Date(t).toISOString();
+          } else {
+            iso = new Date(cursor).toISOString();
+          }
         } else {
           iso = new Date(cursor).toISOString();
         }
-      } else {
-        iso = new Date(cursor).toISOString();
-      }
-      cursor += randomGapMs();
+        cursor += randomGapMs();
 
-      const id = genId(iso);
-      let ref = null;
-      if (item.reply) {
-        const target = item.reply.prev
-          ? built[built.length - 1]
-          : built[item.reply.line - 1];
-        if (target) {
-          ref = { id: target.id, userId: target.userId, content: target.content, timestamp: target.timestamp };
+        const id = genId(iso);
+        let ref = null;
+        if (item.reply) {
+          const target = item.reply.prev
+            ? built[built.length - 1]
+            : built[item.reply.line - 1];
+          if (target) {
+            ref = { id: target.id, userId: target.userId, content: target.content, timestamp: target.timestamp };
+          }
         }
+
+        await createFakeMessage(channelId, item.uid, item.content, iso, id, ref);
+        saveMessage(channelId, item.uid, item.content, id, iso, ref);
+        built.push({ id, userId: item.uid, content: item.content, timestamp: iso });
+        count++;
       }
 
-      await createFakeMessage(channelId, item.uid, item.content, iso, id, ref);
-      saveMessage(channelId, item.uid, item.content, id, iso, ref);
-      built.push({ id, userId: item.uid, content: item.content, timestamp: iso });
-      count++;
+      showToast(count ? `Sent ${count} message${count === 1 ? "" : "s"}.` : "No valid lines found.");
+    } catch (err) {
+      showToast("Conversation error: " + (err.message || "unknown"));
+      warn("runConversation failed", err);
     }
-
-    showToast(count ? `Sent ${count} message${count === 1 ? "" : "s"}.` : "No valid lines found.");
   }
 
   // ─── DM Navigation ─────────────────────────────────────────────────────────
