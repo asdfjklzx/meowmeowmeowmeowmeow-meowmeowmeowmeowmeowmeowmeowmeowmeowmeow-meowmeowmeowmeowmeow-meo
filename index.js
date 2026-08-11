@@ -1423,29 +1423,44 @@
   // ─── Command Registration ───────────────────────────────────────────────────
 
   function registerCommands() {
-    // try every known command API path
-    const cmds = globalThis.vendetta?.commands
-      || globalThis.bunny?.commands
-      || globalThis.__bunny__?.commands
-      || (typeof vendetta !== "undefined" && vendetta?.commands)
-      || null;
+    // Kettu exposes the API as `vendetta` but not always on globalThis directly.
+    // Find whichever global holds .commands.registerCommand.
+    function findCommandsApi() {
+      // direct references first
+      const direct = (typeof vendetta !== "undefined" && vendetta)
+        || globalThis.vendetta
+        || globalThis.bunny
+        || globalThis.__vendetta__
+        || null;
+      if (direct?.commands?.registerCommand) return direct.commands;
 
+      // scan globals for the object with the right shape
+      try {
+        for (const k of Object.keys(globalThis)) {
+          try {
+            const v = globalThis[k];
+            if (v && v.commands && typeof v.commands.registerCommand === "function" && v.metro)
+              return v.commands;
+          } catch {}
+        }
+      } catch {}
+
+      // metro fallback
+      try {
+        const m = metro.findByProps("registerCommand");
+        if (m && typeof m.registerCommand === "function") return m;
+      } catch {}
+
+      return null;
+    }
+
+    const cmds = findCommandsApi();
     let reg = cmds && typeof cmds.registerCommand === "function"
       ? cmds.registerCommand.bind(cmds)
       : null;
 
-    // fallback: try BunnyPlugins command API
     if (!reg) {
-      try {
-        const BunnyCommands = metro.findByProps("registerCommand");
-        if (BunnyCommands && typeof BunnyCommands.registerCommand === "function") {
-          reg = BunnyCommands.registerCommand.bind(BunnyCommands);
-        }
-      } catch {}
-    }
-
-    if (!reg) {
-      warn("No command API found - commands won't register. Vendetta/Bunny commands API missing.");
+      warn("No command API found");
       showToast("[Spoofer] No command API found");
       return;
     }
@@ -2531,11 +2546,17 @@
         if (!FluxDispatcher) missing.push("FluxDispatcher");
         if (!MessageActions) missing.push("MessageActions");
         if (!FormRow) missing.push("FormRow");
-        const cmdApi = globalThis.vendetta?.commands
-          || globalThis.bunny?.commands
-          || globalThis.__bunny__?.commands
-          || (typeof vendetta !== "undefined" && vendetta?.commands)
-          || metro.findByProps("registerCommand");
+        let cmdApi = null;
+        try {
+          const direct = (typeof vendetta !== "undefined" && vendetta) || globalThis.vendetta || globalThis.bunny;
+          if (direct?.commands?.registerCommand) cmdApi = direct.commands;
+          if (!cmdApi) {
+            for (const k of Object.keys(globalThis)) {
+              try { const v = globalThis[k]; if (v?.commands?.registerCommand && v.metro) { cmdApi = v.commands; break; } } catch {}
+            }
+          }
+          if (!cmdApi) cmdApi = metro.findByProps("registerCommand");
+        } catch {}
         if (!cmdApi) missing.push("CommandAPI");
 
         if (missing.length) {
