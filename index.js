@@ -2485,16 +2485,40 @@
       try { cleanupCallbacks.forEach((fn) => { try { fn(); } catch {} }); } catch {}
       cleanupCallbacks = [];
 
-      try { registerCommands(); } catch (err) { warn("registerCommands failed", err); }
+      // ── Load-time diagnostics: report any missing critical modules ──
+      try {
+        const missing = [];
+        if (!UserStore) missing.push("UserStore");
+        if (!ChannelModule) missing.push("ChannelModule");
+        if (!ChannelSelection) missing.push("ChannelSelection");
+        if (!UserStoreByName) missing.push("UserStoreByName");
+        if (!FluxDispatcher) missing.push("FluxDispatcher");
+        if (!MessageActions) missing.push("MessageActions");
+        const cmdApi = globalThis.vendetta?.commands
+          || globalThis.bunny?.commands
+          || globalThis.__bunny__?.commands
+          || (typeof vendetta !== "undefined" && vendetta?.commands)
+          || metro.findByProps("registerCommand");
+        if (!cmdApi) missing.push("CommandAPI");
 
-      patchMessageActions();
-      patchAvatars();
-      patchNames();
-      patchBannersAndDecorations();
-      patchUserProfile();
-      patchSelfIdentity();
-      patchActionSheet();
-      buildPatchInfo();
+        if (missing.length) {
+          showToast("[Spoofer] Missing: " + missing.join(", "));
+          warn("Missing modules:", missing.join(", "));
+        } else {
+          showToast("[Spoofer] All modules OK");
+        }
+      } catch (err) { warn("diagnostics failed", err); }
+
+      try { registerCommands(); } catch (err) { warn("registerCommands failed", err); showToast("[Spoofer] registerCommands threw: " + (err.message || "?")); }
+
+      try { patchMessageActions(); } catch (err) { warn("patchMessageActions failed", err); }
+      try { patchAvatars(); } catch (err) { warn("patchAvatars failed", err); }
+      try { patchNames(); } catch (err) { warn("patchNames failed", err); }
+      try { patchBannersAndDecorations(); } catch (err) { warn("patchBannersAndDecorations failed", err); }
+      try { patchUserProfile(); } catch (err) { warn("patchUserProfile failed", err); }
+      try { patchSelfIdentity(); } catch (err) { warn("patchSelfIdentity failed", err); }
+      try { patchActionSheet(); } catch (err) { warn("patchActionSheet failed", err); }
+      try { buildPatchInfo(); } catch (err) { warn("buildPatchInfo failed", err); }
 
       try {
         const contextModule = metro.findByProps("openUserContextMenu");
