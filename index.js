@@ -1450,17 +1450,29 @@
 
     log("Command API found, registering commands...");
 
-    const spooferCmd = reg({
+    // Register each command in isolation - if one throws, the rest still register.
+    function safeReg(def, label) {
+      try {
+        const un = reg(def);
+        if (typeof un === "function") cleanupCallbacks.push(un);
+        return true;
+      } catch (e) {
+        warn("register " + label + " failed", e);
+        showToast("[Spoofer] /" + label + " failed: " + (e.message || "?"));
+        return false;
+      }
+    }
+
+    safeReg({
       name: "spoofer",
       displayName: "spoofer",
       description: "Open the Local Message Spoofer panel.",
       displayDescription: "Open the Local Message Spoofer panel.",
       type: 1, inputType: 1, applicationId: "-1", options: [],
       execute: () => openPanel(),
-    });
-    if (typeof spooferCmd === "function") cleanupCallbacks.push(spooferCmd);
+    }, "spoofer");
 
-    const fillCmd = reg({
+    safeReg({
       name: "filluid",
       displayName: "filluid",
       description: "Fill the spoofer User ID from this chat, or pass a specific ID.",
@@ -1483,20 +1495,18 @@
           else showToast("No user found here. Try: /filluid userid:123456789");
         } catch { showToast("Couldn't set the User ID."); }
       },
-    });
-    if (typeof fillCmd === "function") cleanupCallbacks.push(fillCmd);
+    }, "filluid");
 
-    const clearCmd = reg({
+    safeReg({
       name: "clearfakes",
       displayName: "clearfakes",
       description: "Clear all saved fake messages (stops them replaying).",
       displayDescription: "Clear all saved fake messages (stops them replaying).",
       type: 1, inputType: 1, applicationId: "-1", options: [],
       execute: () => clearSavedMessages(),
-    });
-    if (typeof clearCmd === "function") cleanupCallbacks.push(clearCmd);
+    }, "clearfakes");
 
-    const dmCmd = reg({
+    safeReg({
       name: "dm",
       displayName: "dm",
       description: "Open a DM with a user by ID, mention, or profile link.",
@@ -1516,10 +1526,9 @@
           openDM("" + (map.user ?? ""));
         } catch { showToast("Couldn't run /dm."); }
       },
-    });
-    if (typeof dmCmd === "function") cleanupCallbacks.push(dmCmd);
+    }, "dm");
 
-    const sdmCmd = reg({
+    safeReg({
       name: "sdm",
       displayName: "sdm",
       description: "Open a DM and add a local spoofed message.",
@@ -1552,8 +1561,7 @@
           showToast("Error: " + (err.message || "unknown"));
         }
       },
-    });
-    if (typeof sdmCmd === "function") cleanupCallbacks.push(sdmCmd);
+    }, "sdm");
   }
 
   // ─── Patching: Avatars ──────────────────────────────────────────────────────
