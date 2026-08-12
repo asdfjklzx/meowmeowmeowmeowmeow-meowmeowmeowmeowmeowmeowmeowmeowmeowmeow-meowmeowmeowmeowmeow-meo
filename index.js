@@ -2655,11 +2655,21 @@
   );
 })(
   {},
-  vendetta.metro.common,
-  vendetta.metro,
-  vendetta.ui.components,
-  vendetta.plugin,
-  vendetta.patcher,
-  vendetta.ui.assets,
-  vendetta.utils,
+  (vendetta.metro && vendetta.metro.common) || {},
+  vendetta.metro || {},
+  (vendetta.ui && vendetta.ui.components) || {},
+  vendetta.plugin || { storage: (function () {
+    try {
+      var S = vendetta.storage;
+      if (S && typeof S.createStorage === "function" && typeof S.createMMKVBackend === "function") {
+        var st = S.createStorage(S.createMMKVBackend("local-message-spoofer"));
+        if (typeof S.awaitSyncWrapper === "function") { try { S.awaitSyncWrapper(st); } catch (e) {} }
+        return st;
+      }
+    } catch (e) {}
+    return {};
+  })() },
+  vendetta.patcher || {},
+  (vendetta.ui && vendetta.ui.assets) || {},
+  vendetta.utils || {},
 );
