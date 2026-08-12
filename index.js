@@ -1423,38 +1423,21 @@
   // ─── Command Registration ───────────────────────────────────────────────────
 
   function registerCommands() {
-    // Kettu exposes the API as `vendetta` but not always on globalThis directly.
-    // Find whichever global holds .commands.registerCommand.
-    function findCommandsApi() {
-      // direct references first
-      const direct = (typeof vendetta !== "undefined" && vendetta)
-        || globalThis.vendetta
-        || globalThis.bunny
-        || globalThis.__vendetta__
-        || null;
-      if (direct?.commands?.registerCommand) return direct.commands;
-
-      // scan globals for the object with the right shape
-      try {
-        for (const k of Object.keys(globalThis)) {
-          try {
-            const v = globalThis[k];
-            if (v && v.commands && typeof v.commands.registerCommand === "function" && v.metro)
-              return v.commands;
-          } catch {}
-        }
-      } catch {}
-
-      // metro fallback
+    // Confirmed on Kettu: the API is vendetta.commands.registerCommand.
+    // Access it directly - do NOT scan globalThis (some globals throw when touched).
+    let cmds = null;
+    try {
+      if (typeof vendetta !== "undefined" && vendetta && vendetta.commands && typeof vendetta.commands.registerCommand === "function") {
+        cmds = vendetta.commands;
+      }
+    } catch (e) {}
+    if (!cmds) {
       try {
         const m = metro.findByProps("registerCommand");
-        if (m && typeof m.registerCommand === "function") return m;
-      } catch {}
-
-      return null;
+        if (m && typeof m.registerCommand === "function") cmds = m;
+      } catch (e) {}
     }
 
-    const cmds = findCommandsApi();
     let reg = cmds && typeof cmds.registerCommand === "function"
       ? cmds.registerCommand.bind(cmds)
       : null;
@@ -2548,13 +2531,7 @@
         if (!FormRow) missing.push("FormRow");
         let cmdApi = null;
         try {
-          const direct = (typeof vendetta !== "undefined" && vendetta) || globalThis.vendetta || globalThis.bunny;
-          if (direct?.commands?.registerCommand) cmdApi = direct.commands;
-          if (!cmdApi) {
-            for (const k of Object.keys(globalThis)) {
-              try { const v = globalThis[k]; if (v?.commands?.registerCommand && v.metro) { cmdApi = v.commands; break; } } catch {}
-            }
-          }
+          if (typeof vendetta !== "undefined" && vendetta?.commands?.registerCommand) cmdApi = vendetta.commands;
           if (!cmdApi) cmdApi = metro.findByProps("registerCommand");
         } catch {}
         if (!cmdApi) missing.push("CommandAPI");
