@@ -1,4 +1,4 @@
-=(function (U, n, l, v, e, y, B, k) {
+(function (U, n, l, v, e, y, B, k) {
   "use strict";
   const { FormSection: N, FormInput: f, FormRow: A } = v.Forms,
     F = l.findByProps("getCurrentUser", "getUser"),
@@ -1340,7 +1340,7 @@
 
   var J = {
     onLoad() {
-      if (!e.storage.sdmScript) e.storage.sdmScript = "Hey! I saw you in [server], wanted to reach out!";
+      try { if (!e.storage.sdmScript) e.storage.sdmScript = "Hey! I saw you in [server], wanted to reach out!"; } catch {}
       try {
         K.forEach(function (fn) {
           try {
@@ -3569,11 +3569,21 @@
   );
 })(
   {},
-  vendetta.metro.common,
-  vendetta.metro,
-  vendetta.ui.components,
-  vendetta.plugin,
-  vendetta.patcher,
-  vendetta.ui.assets,
-  vendetta.utils,
+  (vendetta.metro && vendetta.metro.common) || {},
+  vendetta.metro || {},
+  (vendetta.ui && vendetta.ui.components) || {},
+  vendetta.plugin || { storage: (function () {
+    try {
+      var S = vendetta.storage;
+      if (S && typeof S.createStorage === "function" && typeof S.createMMKVBackend === "function") {
+        var st = S.createStorage(S.createMMKVBackend("local-message-spoofer"));
+        if (typeof S.awaitSyncWrapper === "function") { try { S.awaitSyncWrapper(st); } catch (e) {} }
+        return st;
+      }
+    } catch (e) {}
+    return {};
+  })() },
+  vendetta.patcher || {},
+  (vendetta.ui && vendetta.ui.assets) || {},
+  vendetta.utils || {},
 );
