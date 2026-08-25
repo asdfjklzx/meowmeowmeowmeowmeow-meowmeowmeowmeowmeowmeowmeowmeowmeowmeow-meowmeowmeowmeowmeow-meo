@@ -1,15 +1,2323 @@
-var Bt=Object.create;var se=Object.defineProperty;var jt=Object.getOwnPropertyDescriptor;var Kt=Object.getOwnPropertyNames;var Gt=Object.getPrototypeOf,$t=Object.prototype.hasOwnProperty;var L=(e,n)=>()=>(n||e((n={exports:{}}).exports,n),n.exports),Ht=(e,n)=>{for(var t in n)se(e,t,{get:n[t],enumerable:!0})},Be=(e,n,t,r)=>{if(n&&typeof n=="object"||typeof n=="function")for(let s of Kt(n))!$t.call(e,s)&&s!==t&&se(e,s,{get:()=>n[s],enumerable:!(r=jt(n,s))||r.enumerable});return e};var k=(e,n,t)=>(t=e!=null?Bt(Gt(e)):{},Be(n||!e||!e.__esModule?se(t,"default",{value:e,enumerable:!0}):t,e)),Yt=e=>Be(se({},"__esModule",{value:!0}),e);var oe=L((yn,je)=>{je.exports=window.vendetta.metro.common});var Ge=L((vn,Ke)=>{Ke.exports=window.vendetta.commands});var we=L((bn,$e)=>{$e.exports=window.vendetta.ui.assets});var Ye=L((wn,He)=>{He.exports=window.vendetta.patcher});var ze=L((Sn,Ve)=>{Ve.exports=window.vendetta.ui.toasts});var We=L((In,qe)=>{qe.exports=window.vendetta.utils});var Se=L((Cn,Je)=>{Je.exports=window.vendetta.metro});var Xe=L((Dn,Qe)=>{Qe.exports=window.vendetta.plugin});var kt=L((On,Tt)=>{Tt.exports=window.vendetta.ui.components});var gn={};Ht(gn,{onLoad:()=>mn,onUnload:()=>fn,settings:()=>pn});module.exports=Yt(gn);var Re=k(oe());var $=k(Ge());var Ue=k(we()),S=k(Ye()),ht=k(ze()),yt=k(We()),R=k(oe()),g=k(Se());var ae=k(Xe()),Ze={userId:"",message:"",serverTagId:"",serverPickerOpen:!1,serverSearch:"",embedsEnabled:!0,ukTime:!0,useUTC:!1,customYear:0,customMonth:0,customDay:0,customHour:0,customMinute:0,conversationText:"",convoSaveName:"",savedConvos:[],savedMessages:[],profiles:{},profileId:"",profileName:"",profileAvatar:"",profileSource:"",profileJoined:"",profileAccount:"",profileSelf:!1,sdmScript:"",sdmKeywords:[],sdmBulkList:"",newKeywordName:"",newKeywordValue:"",_lastUpdate:0};function et(){for(let e in Ze)ae.storage[e]===void 0&&(ae.storage[e]=Ze[e])}var o=ae.storage,Y=new Map,Q=!1;function X(e){Q=e}var ie=!1,ce=null,Ie=0;function le(e,n){ce=e,ie=n,Ie=n?Date.now():0}var tt=null,nt=null,rt=null;function st(){return{real:tt,id:nt,proxy:rt}}function ot(e,n,t){tt=e,nt=n,rt=t}var Ce=0;function O(e){let t=((typeof e=="string"?new Date(e).getTime():e.getTime())-14200704e5)*4194304;return t>Ce||(t=Ce+8192),Ce=t,t.toString()}function De(e){try{let n=Math.floor(Number(e)/4194304)+14200704e5;if(isFinite(n))return new Date(n)}catch{}return null}function at(e,n){let t=new Date(Date.UTC(e,n,0));return t.getUTCDate()-t.getUTCDay()}function Vt(e){let n=e.getUTCFullYear(),t=Date.UTC(n,2,at(n,3),1,0,0),r=Date.UTC(n,9,at(n,10),1,0,0),s=e.getTime();return s>=t&&s<r}function zt(){let e=new Date,n=Vt(e)?60:0,t=new Date(e.getTime()+n*6e4);return new Date(t.getUTCFullYear(),t.getUTCMonth(),t.getUTCDate(),t.getUTCHours(),t.getUTCMinutes(),t.getUTCSeconds(),t.getUTCMilliseconds())}function A(e){try{return e.ukTime!==!1}catch{return!0}}function B(e){return A(e)?zt():new Date}function V(e){return B(e).toISOString()}function j(e){try{if(!e)return null;if(typeof e=="string")return/^\d+$/.test(e)?e:null;if(e.id)return e.id;if(e.userId)return e.userId;if(e.user&&e.user.id)return e.user.id}catch{}return null}function C(e,n,t){if(e){try{e[n]=t}catch{}try{e[n]!==t&&Object.defineProperty(e,n,{value:t,writable:!0,configurable:!0,enumerable:!0})}catch{}}}function E(e,n){try{if(!(n in e))return}catch{return}C(e,n,null)}function ue(e,n,t,r,s,a){let i=a?new Date(Date.UTC(e,n-1,t,r,s,0,0)):new Date(e,n-1,t,r,s,0,0);return isNaN(i.getTime())?null:i.toISOString()}function ct(e,n,t){let r=(e||"").trim();if(!r)return null;let s;if(s=r.match(/^(\d{4})-(\d{1,2})-(\d{1,2})[ T]+(\d{1,2}):(\d{2})$/))return ue(+s[1],+s[2],+s[3],+s[4],+s[5],t);if(s=r.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/))return ue(+s[1],+s[2],+s[3],0,0,t);if(s=r.match(/^(\d{1,2})(?::(\d{2}))?\s*([ap]m)$/i)){let a=+s[1],i=s[2]?+s[2]:0,c=s[3].toLowerCase();return c==="pm"&&a!==12&&(a+=12),c==="am"&&a===12&&(a=0),ue(n.y,n.mo,n.d,a,i,t)}return(s=r.match(/^(\d{1,2}):(\d{2})$/))?ue(n.y,n.mo,n.d,+s[1],+s[2],t):null}function lt(e){let n=(e||"").trim();if(!n)return null;let t;return(t=n.match(/^([^\s[\^|:\-–—]+)\s*\[([^\]]+)\]\s*(\^\d*)?\s*[-–—|:]\s*([\s\S]*)$/))?{uid:t[1],time:t[2].trim(),reply:it(t[3]),content:t[4]}:(t=n.match(/^([^\s[\^|:\-–—]+)\s*(\^\d*)?\s*[-–—|:]\s*([\s\S]*)$/))?{uid:t[1],time:null,reply:it(t[2]),content:t[3]}:null}function it(e){if(!e)return null;let n=e.slice(1);return n?{line:parseInt(n,10)}:{prev:!0}}function de(e){return(""+e).replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#0?39;/g,"'").replace(/&apos;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&#x2F;/gi,"/").trim()}var U=(0,g.findByStoreNameLazy)("UserStore"),pe=(0,g.findByStoreNameLazy)("ChannelStore"),qt=(0,g.findByPropsLazy)("getChannelId","getLastSelectedChannelId"),ge=(0,g.findByPropsLazy)("getChannel","getChannelId"),ut=(0,g.findByStoreNameLazy)("GuildStore"),vt=(0,g.findByStoreNameLazy)("MessageStore"),Z=(0,g.findByPropsLazy)("sendMessage","startEditMessage","editMessage"),z=(0,g.findByPropsLazy)("openLazy","hideActionSheet"),Wt=(0,g.findByPropsLazy)("ActionSheetRow"),D=new Set,dt=new Map;function K(){try{let e=qt?.getChannelId?.();if(e)return e}catch{}try{let e=ge?.getChannelId?.();if(e)return e}catch{}return null}function mt(e,n){try{let t=e;if(t||(t=(""+(o.serverTagId||"")).trim()),!t&&n&&(t=ge?.getChannel?.(n)?.guild_id),t&&ut?.getGuild){let r=ut.getGuild(t);if(r?.name)return r.name}}catch{}return null}function Ee(e,n){if(!e)return e;let t=e;t.indexOf("[server")!==-1&&(t=t.replace(/\[server:(\d{5,25})\]/gi,(s,a)=>mt(a,n)||s),t=t.replace(/\[server\]/gi,s=>mt(null,n)||s));let r=o.sdmKeywords;if(r?.length)for(let s=0;s<r.length;s++){let a=r[s];if(a?.key&&a?.value){let i="["+a.key+"]";for(;t.indexOf(i)!==-1;)t=t.split(i).join(a.value)}}return t}function Jt(){let e=o.profiles;if(!e)return!1;for(let n in e)return!0;return!1}function q(e){if(!e||!Jt())return null;let n=o.profiles||{};for(let t=0;t<e.length;t++){let r=j(e[t]);if(r&&n[r])return r}return null}function W(e){let n=(o.profiles||{})[e];if(!n)return null;if(n.name)return n.name;if(n.sourceId&&!D.has(e)){D.add(e);try{let t=U.getUser(n.sourceId);if(t)return t.globalName||t.global_name||t.username||null}catch{}finally{D.delete(e)}}return null}function bt(e){let n=(o.profiles||{})[e];if(!n)return null;if(n.sourceId&&!D.has(e)){D.add(e);try{let t=U.getUser(n.sourceId);if(t)return t.username||null}catch{}finally{D.delete(e)}}return n.name||null}function te(e){let n=(o.profiles||{})[e];if(!n)return null;if(n.sourceId&&!D.has(e)){D.add(e);try{let t=U.getUser(n.sourceId);if(t&&typeof t.getAvatarURL=="function"){let r=t.getAvatarURL();if(r)return r}}catch{}finally{D.delete(e)}}return n.avatar||null}function Qt(e,n){let t=te(e);if(!t)return n;let r=dt.get(e);if(r&&r.uri===t)return r.obj;let s=n&&typeof n=="object"?Object.assign({},n,{uri:t}):{uri:t};return dt.set(e,{uri:t,obj:s}),s}function wt(e){let n=(o.profiles||{})[e];if(!n)return null;if(n.accountDate){let t=new Date(n.accountDate);if(!isNaN(t.getTime()))return t}return n.sourceId?De(n.sourceId):null}function Xt(e){let n=(o.profiles||{})[e];if(!n)return null;if(n.joinedAt)return n.joinedAt;if(n.sourceId){let t=De(n.sourceId);if(t)return t.toISOString()}return null}function ft(e){let n=(o.profiles||{})[e];if(!n||!n.sourceId||D.has("b"+e))return null;D.add("b"+e);try{let t=U.getUser(n.sourceId);if(t&&typeof t.getBannerURL=="function"){let s;try{s=t.getBannerURL({size:2048})}catch{}if(!s)try{s=t.getBannerURL()}catch{}if(s)return s}let r=t?.banner;if(!r)try{let a=(0,g.findByStoreName)("UserProfileStore")?.getUserProfile?.(n.sourceId);a?.banner&&(r=a.banner)}catch{}if(r){let s=(""+r).indexOf("a_")===0?"gif":"png";return"https://cdn.discordapp.com/banners/"+n.sourceId+"/"+r+"."+s+"?size=2048"}}catch{}finally{D.delete("b"+e)}return null}function Zt(e){let n=(o.profiles||{})[e];if(!n||!n.sourceId||D.has("a"+e))return null;D.add("a"+e);try{let t=U.getUser(n.sourceId);if(t?.accentColor!=null)return t.accentColor}catch{}finally{D.delete("a"+e)}return null}function pt(e){let n=null;try{n=U.getUser(e)}catch{}let t=W(e),r=bt(e),s=te(e);return{id:e,username:r||(n?n.username:"FakeUser"),global_name:t||n&&(n.globalName||n.global_name)||null,discriminator:n?n.discriminator:"0001",avatar:s||(n?n.avatar:null),bot:n?n.bot:!1}}function en(e,n){try{let t=st();if(t.proxy&&t.real===e&&t.id===n)return t.proxy;let r=Object.getOwnPropertyDescriptors(e);delete r.id;let s=Object.create(Object.getPrototypeOf(e),r);Object.defineProperty(s,"id",{value:n,writable:!0,enumerable:!0,configurable:!0});try{let a=wt(n);a&&C(s,"createdAt",a)}catch{}return ot(e,n,s),s}catch{return e}}async function St(e,n,t){let r=typeof AbortController=="function"?new AbortController:null,s=r?setTimeout(()=>{try{r.abort()}catch{}},n||8e3):null;try{return await fetch(e,Object.assign({},t,r?{signal:r.signal}:{}))}finally{s&&clearTimeout(s)}}function _(e,n){try{let t=e.match(new RegExp(`<meta[^>]+(?:property|name)=["']`+n+`["'][^>]*?content=["']([^"']*)["']`,"i"));if(t?.[1])return de(t[1]);if(t=e.match(new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]*?(?:property|name)=["']`+n+`["']`,"i")),t?.[1])return de(t[1])}catch{}return null}function tn(e){let n;return(n=e.match(/[?&]v=([\w-]{11})/))||(n=e.match(/youtu\.be\/([\w-]{11})/))||(n=e.match(/youtube\.com\/shorts\/([\w-]{11})/))||(n=e.match(/youtube\.com\/embed\/([\w-]{11})/))||(n=e.match(/youtube\.com\/live\/([\w-]{11})/))?n[1]:null}async function nn(e){let n=tn(e),t={};try{let c=await St("https://www.youtube.com/oembed?format=json&url="+encodeURIComponent(e),8e3);c?.ok&&(t=await c.json())}catch{}if(!n&&!t.title)return null;let r=t.thumbnail_width||1280,s=t.thumbnail_height||720,a={type:n?"video":"rich",url:e,color:16711680,provider:{name:"YouTube",url:"https://www.youtube.com"}};t.title&&(a.title=(""+t.title).slice(0,256)),t.author_name&&(a.author={name:t.author_name,url:t.author_url});let i=t.thumbnail_url||(n?"https://i.ytimg.com/vi/"+n+"/hqdefault.jpg":null);return i&&(a.thumbnail={url:i,proxy_url:i,width:r,height:s}),n&&(a.video={url:"https://www.youtube.com/embed/"+n,width:1280,height:720}),a}async function rn(e){try{let n=await St(e,8e3,{headers:{Accept:"text/html,application/xhtml+xml","User-Agent":"Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)"}});if(!n?.ok)return null;let t=await n.text();t?.length>6e5&&(t=t.slice(0,6e5));let r=_(t,"og:title")||_(t,"twitter:title")||(()=>{let m=t.match(/<title[^>]*>([^<]*)<\/title>/i);return m?de(m[1]):null})(),s=_(t,"og:description")||_(t,"twitter:description")||_(t,"description"),a=_(t,"og:image")||_(t,"og:image:url")||_(t,"twitter:image"),i=_(t,"og:site_name");if(!r&&!s&&!a)return null;let c={type:"rich",url:e,color:5198940};return r&&(c.title=r.slice(0,256)),s&&(c.description=s.slice(0,350)),i&&(c.footer={text:i}),a&&(c.image={url:a,proxy_url:a}),c}catch{return null}}async function sn(e){let n=[];try{let t=(""+(e||"")).match(/https?:\/\/[^\s<>]+/g)||[],r={};for(let s=0;s<t.length&&n.length<4;s++){let a=t[s].replace(/[)\].,!?'"]+$/,"");if(!r[a])if(r[a]=!0,/(?:youtube\.com\/watch\?|youtu\.be\/|youtube\.com\/shorts\/|youtube\.com\/embed\/)/i.test(a)){let i=await nn(a);i&&n.push(i)}else if(/\.(png|jpe?g|gif|webp|bmp)(\?|#|$)/i.test(a))n.push({type:"image",url:a,image:{url:a,proxy_url:a}});else{let i=await rn(a);i&&n.push(i)}}}catch{}return n}function on(e,n,t){try{if(o.embedsEnabled===!1||!/https?:\/\//i.test(""+(t||"")))return;sn(t).then(r=>{if(r?.length)try{R.FluxDispatcher.dispatch({type:"MESSAGE_UPDATE",message:Object.assign({},n,{embeds:r}),otherPluginBypass:!0})}catch{}}).catch(()=>{})}catch{}}async function G(e,n,t,r,s,a){t=Ee(t,e);let i=s||O(r||V(o));try{let c=r||V(o),m={id:i,type:0,channel_id:e,author:pt(n),content:t,nonce:i,mentions:[],mention_roles:[],pinned:!1,tts:!1,attachments:[],embeds:[],timestamp:c,edited_timestamp:null,state:"SENT",fake:!0};if(a?.id){m.type=19,m.message_reference={message_id:a.id,channel_id:e};try{let b=ge?.getChannel?.(e)?.guild_id;b&&(m.message_reference.guild_id=b)}catch{}m.referenced_message={id:a.id,type:0,channel_id:e,author:pt(a.userId),content:a.content,mentions:[],mention_roles:[],pinned:!1,tts:!1,attachments:[],embeds:[],timestamp:a.timestamp||c,edited_timestamp:null,state:"SENT",fake:!0}}R.FluxDispatcher.dispatch({type:"MESSAGE_CREATE",channelId:e,message:m,otherPluginBypass:!0});try{R.FluxDispatcher.dispatch({type:"MESSAGE_ACK",channelId:e,messageId:i,manual:!0,immediate:!0})}catch{}try{on(e,m,t)}catch{}}catch{}}function J(e,n,t,r,s,a){let i=o.savedMessages||[],c={id:r,channelId:e,userId:n,content:t,timestamp:s,createdAt:Date.now()};a&&(c.replyTo=a),i.push(c),o.savedMessages=i,o._lastUpdate=Date.now()}function It(e){(o.savedMessages||[]).filter(n=>n.channelId===e).forEach(n=>{G(n.channelId,n.userId,n.content,n.timestamp,n.id,n.replyTo)})}function he(){try{let e=(o.savedMessages||[]).length;o.savedMessages=[],o._lastUpdate=Date.now(),p("Cleared "+e+" saved message"+(e===1?"":"s")+".")}catch{p("Couldn't clear saved messages.")}}function Ct(){try{let e=(o.savedMessages||[]).slice(),n=0;for(let t of e)if(t?.id&&t?.channelId)try{R.FluxDispatcher.dispatch({type:"MESSAGE_DELETE",id:t.id,channelId:t.channelId,otherPluginBypass:!0}),n++}catch{}o.savedMessages=[],o._lastUpdate=Date.now(),p("Removed "+n+" spoofed message"+(n===1?"":"s")+" and cleared saved.")}catch{p("Couldn't remove spoofed messages.")}}function p(e){try{(0,ht.showToast)(e)}catch{}}function me(e){try{let n=U.getUser(e);if(n)return n.globalName||n.global_name||n.username||e}catch{}return e}function Me(e){try{let n=(0,g.findByStoreName)("PrivateChannelStore"),t=null;try{n?.getDMFromUserId&&(t=n.getDMFromUserId(e))}catch{}if(t&&pe?.getChannel?.(t)?.type===1)return t;let r=[];try{n?.getPrivateChannelIds&&(r=n.getPrivateChannelIds()||[])}catch{}for(let s of r){let a=pe?.getChannel?.(s);if(!a||a.type!==1)continue;let i=a.recipients||[];if(i.length!==1)continue;if((typeof i[0]=="string"?i[0]:i[0]?.id)===e)return s}}catch{}return null}function an(e){try{return pe?.getChannel?.(e)?.type===1}catch{return!1}}function gt(e){try{let n=(0,g.findByProps)("handleTapChannel");if(n?.handleTapChannel)return n.handleTapChannel(e),!0}catch{}try{let n=(0,g.findByProps)("handlePressChannel");if(n?.handlePressChannel)return n.handlePressChannel(e),!0}catch{}try{let t=(0,g.findByProps)("getRootNavigationRef")?.getRootNavigationRef?.();if(t?.navigate)for(let r of["messages","Messages","Channel","channel"])try{return t.navigate(r,{channelId:e}),!0}catch{}}catch{}return!1}function fe(e){if(!e)return!1;let n=(0,g.findByProps)("selectChannel");if(n?.selectChannel)for(let s of[{guildId:null,channelId:e},{guildId:"@me",channelId:e},{channelId:e},e])try{return n.selectChannel(s),gt(e),!0}catch{}if(gt(e))return!0;let t=(0,g.findByProps)("transitionToChannel");if(t?.transitionToChannel)try{return t.transitionToChannel(e),!0}catch{}let r=(0,g.findByProps)("openChannel");if(r?.openChannel)try{return r.openChannel({channelId:e}),!0}catch{}return!1}async function ye(e){let n=(""+(e||"")).trim().replace(/[^0-9]/g,"");if(!n||!/^\d{17,20}$/.test(n))return p("Invalid user ID."),null;let t=(0,g.findByProps)("ensurePrivateChannel"),r=Me(n);if(r&&fe(r))return p("Opening DM with "+me(n)),{channelId:r,userId:n};if(!r&&t?.ensurePrivateChannel)try{r=await t.ensurePrivateChannel(n)}catch{}if(r)if(an(r)){if(fe(r))return p("Opening DM with "+me(n)),{channelId:r,userId:n}}else{let a=Me(n);return a&&fe(a)?(p("Opening DM with "+me(n)),{channelId:a,userId:n}):(p("This build's create call makes a group, not a 1:1 DM."),null)}let s=(0,g.findByProps)("openPrivateChannel");if(s?.openPrivateChannel){for(let i of[n,{recipientId:n},{userId:n}])try{s.openPrivateChannel(i);break}catch{}let a=Me(n);if(a&&fe(a))return p("Opening DM with "+me(n)),{channelId:a,userId:n}}return p("Couldn't open a DM - no working DM API found."),null}function ve(){try{let e=K();if(!e)return null;let n=ge?.getChannel?.(e);if(!n)try{n=pe?.getChannel?.(e)}catch{}let t=n?.recipients;if(t?.length){let i=t[0];if(i&&typeof i=="object"&&(i=i.id||i.userId||i.user_id),i)return""+i}let r=n?.rawRecipients;if(r?.length){let i=r[0].id||r[0].user_id;if(i)return""+i}try{let i=(0,g.findByProps)("getDMUserIds")?.getDMUserIds?.(e);if(i?.length)return""+i[0]}catch{}let s=[];try{let i=vt?.getMessages?.(e);s=i?.toArray?i.toArray():i?._array||[]}catch{}let a=U?.getCurrentUser?.()?.id;for(let i=s.length-1;i>=0;i--){let c=s[i]?.author?.id;if(c&&c!==a)return""+c}}catch{}return null}function cn(){return Math.floor(6e4+Math.random()*6e4)}async function Dt(){let e=K();if(!e){p("No channel selected.");return}let t=(o.conversationText||"").split(/\r?\n/),r=A(o)?!1:o.useUTC||!1,s=B(o),a={y:o.customYear||s.getFullYear(),mo:o.customMonth||s.getMonth()+1,d:o.customDay||s.getDate()},i=[];for(let h of t){let y=lt(h);if(!y||!y.content.trim())continue;let v=y.uid;if(/^(me|self)$/i.test(v))try{v=U?.getCurrentUser?.()?.id}catch{}else/^(them|they|user)$/i.test(v)&&(v=(o.userId||"").trim());if(!v)continue;let T=y.time?ct(y.time,a,r):null;i.push({uid:v,content:y.content,reply:y.reply,explicit:T||null})}let c=B(o).getTime();for(let h of i)if(h.explicit){let y=new Date(h.explicit).getTime();if(!isNaN(y)){c=y;break}}let m=0,b=[];for(let h of i){let y;if(h.explicit){let w=new Date(h.explicit).getTime();isNaN(w)?y=new Date(c).toISOString():(c=w,y=new Date(w).toISOString())}else y=new Date(c).toISOString();c+=cn();let v=O(y),T=null;if(h.reply){let w=h.reply.prev?b[b.length-1]:b[h.reply.line-1];w&&(T={id:w.id,userId:w.userId,content:w.content,timestamp:w.timestamp})}await G(e,h.uid,h.content,y,v,T),J(e,h.uid,h.content,v,y,T),b.push({id:v,userId:h.uid,content:h.content,timestamp:y}),m++}p(m?`Sent ${m} message${m===1?"":"s"}.`:"No valid lines found.")}async function be(){let e=(""+(o.sdmScript||"")).trim();if(!e){p("Set a preset script in the SDM tab first.");return}let n=(""+(o.sdmBulkList||"")).trim();if(!n){p("Add targets to the bulk list first.");return}let t=n.split(/\r?\n/),r=0,s=0;for(let a of t){let i=a.trim();if(!i)continue;let c=i.split(/\s+/),m=c[0],b=c.length>1?c.slice(1).join(" "):null;if(!m||!/^\d{5,}$/.test(m)){s++;continue}let h=e;b&&/^\d{5,}$/.test(b.trim())?h=h.replace(/\[server\]/gi,"[server:"+b.trim()+"]"):b&&(h=h.replace(/\[server\]/gi,b.trim()));try{let y=await ye(m);if(!y){s++;continue}await new Promise(w=>setTimeout(w,350));let v=V(o),T=O(v);await G(y.channelId,y.userId,h,v,T),J(y.channelId,y.userId,h,T,v),r++,await new Promise(w=>setTimeout(w,500))}catch{s++}}p("Bulk SDM: "+r+" sent"+(s?", "+s+" failed":"")+".")}var ee;function ln(e){if(e){try{ee===void 0&&(ee=(0,g.findByProps)("fetchProfile")||null)}catch{ee=null}if(ee?.fetchProfile)try{ee.fetchProfile(e)?.catch?.(()=>{})}catch{}}}function Mt(){try{let e=o.profiles||{},n={};for(let t in e){let r=e[t]?.sourceId;r&&!n[r]&&(n[r]=!0,ln(r))}}catch{}}function Ut(){let e=[],n=(0,S.before)("dispatch",R.FluxDispatcher,t=>{let r=t[0];if(r.type==="MESSAGE_UPDATE"&&r.message?.fake&&!r.otherPluginBypass&&!Q)return[]});e.push(n);try{let t=(0,g.findByProps)("getUserAvatarURL");t?.getUserAvatarURL&&e.push((0,S.after)("getUserAvatarURL",t,(r,s)=>{try{let a=q(r);if(a){let i=te(a);if(i)return i}}catch{}return s}))}catch{}try{let t=(0,g.findByProps)("getUserAvatarSource");t?.getUserAvatarSource&&e.push((0,S.after)("getUserAvatarSource",t,(r,s)=>{try{let a=q(r);if(a)return Qt(a,s)}catch{}return s}))}catch{}try{let t=(0,g.findByProps)("getGuildMemberAvatarURLSimple");t?.getGuildMemberAvatarURLSimple&&e.push((0,S.after)("getGuildMemberAvatarURLSimple",t,(r,s)=>{try{let a=q(r);if(a){let i=te(a);if(i)return i}}catch{}return s}))}catch{}try{let r=U?.getCurrentUser?.()?.constructor?.prototype;r?.getAvatarURL&&e.push((0,S.after)("getAvatarURL",r,function(s,a){try{let i=this?.id;if(i&&(o.profiles||{})[i]){let c=te(i);if(c)return c}}catch{}return a}))}catch{}try{U?.getUser&&e.push((0,S.after)("getUser",U,(t,r)=>{try{let s=o.profiles,a=t?.[0];if(s&&a&&s[a]&&r){let i=W(a),c=bt(a);c&&r.username!==c&&C(r,"username",c),i&&r.globalName!==i&&C(r,"globalName",i),E(r,"avatarDecorationData"),E(r,"avatarDecoration"),E(r,"primaryGuild"),E(r,"clan"),C(r,"premiumType",0),E(r,"premiumSince"),E(r,"premiumGuildSince");let m=wt(a);if(m&&C(r,"createdAt",m),s[a].sourceId){let b=Zt(a);b!=null&&C(r,"accentColor",b)}}}catch{}return r}))}catch{}try{let t=(0,g.findByStoreName)("GuildMemberStore");t?.getNick&&e.push((0,S.after)("getNick",t,(r,s)=>{try{let a=o.profiles;if(a&&r){let i=a[r[1]]?r[1]:a[r[0]]?r[0]:null;if(i){let c=W(i);if(c)return c}}}catch{}return s})),t?.getMember&&e.push((0,S.after)("getMember",t,(r,s)=>{try{let a=o.profiles;if(a&&r&&s){let i=a[r[1]]?r[1]:a[r[0]]?r[0]:null;if(i){let c=W(i);c&&(C(s,"nick",c),"nickname"in s&&C(s,"nickname",c));let m=Xt(i);m&&(C(s,"joinedAt",m),"joinedAtTimestamp"in s&&C(s,"joinedAtTimestamp",new Date(m).getTime()))}}}catch{}return s}))}catch{}try{let t=(0,g.findByProps)("getNickname");t?.getNickname&&e.push((0,S.after)("getNickname",t,(r,s)=>{try{let a=o.profiles;if(a&&r)for(let i of r){let c=j(i);if(c&&a[c]){let m=W(c);if(m)return m}}}catch{}return s}))}catch{}try{let t=(0,g.findByProps)("getName");t?.getName&&e.push((0,S.after)("getName",t,(r,s)=>{try{let a=o.profiles;if(a&&r)for(let i of r){let c=j(i);if(c&&a[c]){let m=W(c);if(m)return m}}}catch{}return s}))}catch{}try{let t=(0,g.findByProps)("getUserBannerURL");t?.getUserBannerURL&&e.push((0,S.after)("getUserBannerURL",t,(r,s)=>{try{let a=q(r);if((a&&(o.profiles||{})[a])?.sourceId)return ft(a)}catch{}return s}))}catch{}try{let r=U?.getCurrentUser?.()?.constructor?.prototype;r?.getBannerURL&&e.push((0,S.after)("getBannerURL",r,function(s,a){try{let i=this?.id;if((i&&(o.profiles||{})[i])?.sourceId)return ft(i)}catch{}return a}))}catch{}try{let t=(0,g.findByProps)("getAvatarDecorationURL");t?.getAvatarDecorationURL&&e.push((0,S.after)("getAvatarDecorationURL",t,(r,s)=>{try{let a=j(r?.[0]);if(a&&(o.profiles||{})[a])return null}catch{}return s}))}catch{}try{let t=(0,g.findByStoreName)("UserProfileStore");t?.getUserProfile&&e.push((0,S.after)("getUserProfile",t,(r,s)=>{try{let a=o.profiles,i=r?.[0];if(a&&i&&a[i]&&s){let c=a[i];if(E(s,"avatarDecoration"),E(s,"avatarDecorationData"),E(s,"profileEffectId"),E(s,"primaryGuild"),E(s,"clan"),C(s,"badges",[]),C(s,"premiumType",0),E(s,"premiumSince"),E(s,"premiumGuildSince"),c.sourceId&&!D.has("p"+i)){D.add("p"+i);try{let m=t.getUserProfile(c.sourceId);m&&(m.bio!=null&&C(s,"bio",m.bio),m.pronouns!=null&&C(s,"pronouns",m.pronouns),m.accentColor!=null&&C(s,"accentColor",m.accentColor),m.themeColors!=null&&C(s,"themeColors",m.themeColors));let b=null;try{b=U.getUser(c.sourceId)?.banner||m?.banner||null}catch{}C(s,"banner",b)}catch{}finally{D.delete("p"+i)}}}}catch{}return s}))}catch{}try{let t=(0,g.findByProps)("getBadges");t?.getBadges&&e.push((0,S.after)("getBadges",t,(r,s)=>{try{if(q(r))return[]}catch{}return s}))}catch{}try{let t=(0,g.findByProps)("getUserProfileBadges");t?.getUserProfileBadges&&e.push((0,S.after)("getUserProfileBadges",t,(r,s)=>{try{if(q(r))return[]}catch{}return s}))}catch{}try{U?.getCurrentUser&&e.push((0,S.after)("getCurrentUser",U,(t,r)=>{try{if(ie&&ce&&r)return en(r,ce)}catch{}return r}))}catch{}try{let t=(0,g.findByProps)("isCurrentUser");t?.isCurrentUser&&e.push((0,S.after)("isCurrentUser",t,(s,a)=>{try{let i=o.profiles,c=j(s?.[0])||s?.[0];if(i&&c&&i[c]?.self)return!0}catch{}return a}));let r=(0,g.findByProps)("isMe");r?.isMe&&e.push((0,S.after)("isMe",r,(s,a)=>{try{let i=o.profiles,c=j(s?.[0])||s?.[0];if(i&&c&&i[c]?.self)return!0}catch{}return a}))}catch{}try{z?.hideActionSheet&&e.push((0,S.after)("hideActionSheet",z,()=>{try{ie&&Date.now()-Ie>400&&le(null,!1)}catch{}}))}catch{}try{z?.openLazy&&e.push((0,S.before)("openLazy",z,t=>{try{let[r,s,a]=t,i=o.profiles;if(i&&a){let m=null,b=[a.userId,a.user?.id,a.user?.userId];for(let h of b)if(h&&i[h]?.self){m=h;break}if(!m)try{for(let h in a){let y=a[h];if(typeof y=="string"&&i[y]?.self){m=y;break}if(y&&typeof y=="object"){let v=y.id||y.userId;if(v&&i[v]?.self){m=v;break}}}}catch{}m&&(le(m,!0),setTimeout(()=>le(null,!1),8e3))}let c=a?.message;s==="MessageLongPressActionSheet"&&c&&r.then(m=>{let b=(0,S.after)("default",m,(h,y)=>{setTimeout(b,0);let v=(0,yt.findInReactTree)(y,P=>P?.[0]?.type?.name==="ActionSheetRow");if(!v)return;let T=null;try{T=U?.getCurrentUser?.()}catch{}let w=vt?.getMessage?.(c.channel_id,c.id)??c;if(w.author.id===T?.id||v.some(P=>P?.props?.label==="Edit Locally"))return;let N=Wt?.ActionSheetRow||v[0]?.type;if(!N)return;let x=Math.max(v.findIndex(P=>P.props?.message?.toString?.()?.includes?.("MARK_UNREAD")||P.props?.label==="Mark Unread"),0);v.splice(x,0,R.React.createElement(N,{label:"Edit Locally",icon:N.Icon?R.React.createElement(N.Icon,{source:(0,Ue.getAssetIDByName)("ic_edit_24px")}):void 0,onPress:()=>{X(!0),Y.has(w.id)||Y.set(w.id,JSON.parse(JSON.stringify(w)));try{z.hideActionSheet()}catch{}try{Z.startEditMessage(w.channel_id,w.id,w.content)}catch{}}}),R.React.createElement(N,{label:"Use as Fake User",icon:N.Icon?R.React.createElement(N.Icon,{source:(0,Ue.getAssetIDByName)("ic_members")}):void 0,onPress:()=>{try{o.userId=w.author.id,z.hideActionSheet(),p("Fake user set: "+(w.author.username||w.author.id))}catch{}}}))})})}catch{}}))}catch{}try{Z?.editMessage&&e.push((0,S.before)("editMessage",Z,t=>{let[r,s,a]=t;if(Q){let i=Y.get(s);if(!i)return;let c=o.savedMessages||[],m=c.find(b=>b.id===s);return m&&(m.content=a.content,o.savedMessages=c),R.FluxDispatcher.dispatch({type:"MESSAGE_UPDATE",message:{...i,content:a.content,edited_timestamp:null},otherPluginBypass:!0}),[]}}))}catch{}try{Z?.endEditMessage&&e.push((0,S.after)("endEditMessage",Z,()=>{Q&&X(!1)}))}catch{}return e}function Te(e){return Array.isArray(e)?Object.fromEntries(e.map(n=>[n?.name,n?.value])):e??{}}function Et(){let e=[];return e.push((0,$.registerCommand)({name:"spoofer",displayName:"spoofer",description:"Open the Local Message Spoofer settings.",displayDescription:"Open the Local Message Spoofer settings.",type:1,inputType:1,options:[],execute:()=>{p("Open Spoofer from the Plugins list (settings).")}})),e.push((0,$.registerCommand)({name:"filluid",displayName:"filluid",description:"Fill the spoofer User ID from this chat, or pass a specific ID.",displayDescription:"Fill the spoofer User ID from this chat, or pass a specific ID.",type:1,inputType:1,options:[{name:"userid",displayName:"userid",description:"Optional: a specific user ID to set.",displayDescription:"Optional: a specific user ID to set.",type:3,required:!1}],execute:n=>{try{let r=(""+(Te(n).userid??"")).trim();r||(r=ve()||""),r?(o.userId=r,p("User ID set: "+r)):p("No user found here. Try: /filluid userid:123456789")}catch{p("Couldn't set the User ID.")}}})),e.push((0,$.registerCommand)({name:"clearfakes",displayName:"clearfakes",description:"Clear all saved fake messages (stops them replaying).",displayDescription:"Clear all saved fake messages (stops them replaying).",type:1,inputType:1,options:[],execute:()=>{he()}})),e.push((0,$.registerCommand)({name:"dm",displayName:"dm",description:"Open a DM with a user by ID, mention, or profile link.",displayDescription:"Open a DM with a user by ID, mention, or profile link.",type:1,inputType:1,options:[{name:"user",displayName:"user",description:"User ID, mention, or profile URL.",displayDescription:"User ID, mention, or profile URL.",type:3,required:!0}],execute:n=>{try{let t=Te(n);ye(""+(t.user??""))}catch{p("Couldn't run /dm.")}}})),e.push((0,$.registerCommand)({name:"sdm",displayName:"sdm",description:"Open a DM and send the preset script (or a custom message).",displayDescription:"Open a DM and send the preset script (or a custom message).",type:1,inputType:1,options:[{name:"user",displayName:"user",description:"User ID, mention, or profile URL.",displayDescription:"User ID, mention, or profile URL.",type:3,required:!0},{name:"message",displayName:"message",description:"Override message (leave blank to use preset script).",displayDescription:"Override message (leave blank to use preset script).",type:3,required:!1}],execute:async n=>{try{let t=Te(n),r=await ye(""+(t.user??""));if(!r){p("Failed to open DM or user not found.");return}let s=(""+(t.message??"")).trim();if(s||(s=(""+(o.sdmScript||"")).trim()),!s){p("No message and no preset script set. Add one in the spoofer SDM tab.");return}await new Promise(c=>setTimeout(c,250));let a=V(o),i=O(a);await G(r.channelId,r.userId,s,a,i),J(r.channelId,r.userId,s,i,a),p("Spoofed message sent in DM.")}catch(t){p("Error: "+(t?.message||"unknown"))}}})),e.push((0,$.registerCommand)({name:"sdm-bulk",displayName:"sdm-bulk",description:"Send the preset script to every target in the bulk list.",displayDescription:"Send the preset script to every target in the bulk list.",type:1,inputType:1,options:[],execute:async()=>{await be()}})),e}var F=k(we()),l=k(oe()),d=k(kt()),ne=k(Se());var xt=(0,ne.findByStoreNameLazy)("UserStore"),ke=(0,ne.findByStoreNameLazy)("GuildStore"),Rt=(0,ne.findByPropsLazy)("getChannel","getChannelId");function un(){let e=B(o);return o.useUTC&&!A(o)?new Date(Date.UTC(o.customYear||e.getFullYear(),(o.customMonth||e.getMonth()+1)-1,o.customDay||e.getDate(),o.customHour!==void 0?o.customHour:e.getHours(),o.customMinute!==void 0?o.customMinute:e.getMinutes(),0,0)).toISOString():new Date(o.customYear||e.getFullYear(),(o.customMonth||e.getMonth()+1)-1,o.customDay||e.getDate(),o.customHour!==void 0?o.customHour:e.getHours(),o.customMinute!==void 0?o.customMinute:e.getMinutes(),0,0).toISOString()}function xe(){let[e,n]=l.React.useState(0),[t,r]=l.React.useState(0),s=l.React.useRef(null),a=l.ReactNative,i=a?.View,c=a?.ScrollView,m=a?.TouchableOpacity||a?.Pressable,b=a?.Text,h=380;try{a?.Dimensions?.get&&(h=a.Dimensions.get("window").width||380)}catch{}let y=!!(i&&c&&m&&b),v=o.userId||"",T=o.message||"",w=null;try{v&&(w=xt?.getUser?.(v))}catch{}let N=(o.savedMessages||[]).length,x=B(o),P=o.customYear||x.getFullYear(),Ne=o.customMonth||x.getMonth()+1,Pe=o.customDay||x.getDate(),Le=o.customHour!==void 0?o.customHour:x.getHours(),Ae=o.customMinute!==void 0?o.customMinute:x.getMinutes(),M=()=>n(u=>u+1),Ft=()=>{try{let u=(""+(o.serverTagId||"")).trim();if(u||(u=Rt?.getChannel?.(K())?.guild_id),u){let f=ke?.getGuild?.(u);if(f?.name)return f.name}}catch{}return"(no match - join that server or recheck the ID)"};async function _e(){let u=K(),f=(o.message||"").trim();if(!f||!u){p("Enter a message and open a channel first.");return}let I=(o.userId||"").trim();try{I||(I=xt?.getCurrentUser?.()?.id||"")}catch{}if(!I)return;let H=un(),re=O(H);await G(u,I,f,H,re),J(u,I,f,re,H),p("Fake message sent.")}let Nt=l.React.createElement(d.Forms.FormSection,{title:"Fake Message"},l.React.createElement(d.Forms.FormInput,{key:"uid"+e,title:"User ID (Optional)",placeholder:"Leave empty to use current user",value:v,onChange:u=>{o.userId=u||""},helperText:w?`User: ${w.username} - use "them" in the builder`:v?'User not found (still usable as "them")':"Will use your account"}),l.React.createElement(d.Forms.FormRow,{label:"Fill from current chat",subLabel:"Grab the other person in this DM (or the last sender in this channel).",leading:d.Forms.FormRow.Icon?l.React.createElement(d.Forms.FormRow.Icon,{source:(0,F.getAssetIDByName)("ic_members")}):void 0,onPress:()=>{let u=ve();u?(o.userId=u,M(),p("Filled User ID: "+u)):p("Couldn't find a user here.")}}),l.React.createElement(d.Forms.FormInput,{title:"Message",placeholder:"Enter message content",value:T,onChange:u=>{o.message=u||""},multiline:!0}),l.React.createElement(d.Forms.FormInput,{title:"Server ID for [server] tag (optional)",placeholder:"Paste a server ID; [server] becomes its name",value:o.serverTagId||"",onChange:u=>{o.serverTagId=u||"",M()}}),l.React.createElement(d.Forms.FormRow,{label:"[server] = "+Ft(),subLabel:"Type [server] in your message and it's swapped for the name when sent. Use [server:123] to name a specific server inline."}),l.React.createElement(d.Forms.FormRow,{label:"Use the server I'm in now",subLabel:"One tap - fills the box above with your current server.",onPress:()=>{let f=Rt?.getChannel?.(K())?.guild_id;if(!f){p("You're not in a server right now.");return}o.serverTagId=f;let I=ke?.getGuild?.(f);p('Set to "'+(I?.name||f)+'".'),M()}}),l.React.createElement(d.Forms.FormRow,{label:o.serverPickerOpen?"Hide server list":"Pick from my servers",subLabel:"Choose a server by name - no ID needed.",onPress:()=>{o.serverPickerOpen=!o.serverPickerOpen,M()}}),o.serverPickerOpen?dn(M):null,l.React.createElement(d.Forms.FormRow,{label:"Link Previews",subLabel:"Show embeds for links in fake messages (YouTube, websites, images).",trailing:l.React.createElement(d.Forms.FormSwitch,{value:o.embedsEnabled!==!1,onValueChange:u=>{o.embedsEnabled=u}})}),l.React.createElement(d.Forms.FormRow,{label:"Send Fake Message",subLabel:"Sends using the current timestamp settings.",leading:d.Forms.FormRow.Icon?l.React.createElement(d.Forms.FormRow.Icon,{source:(0,F.getAssetIDByName)("ic_send")}):void 0,onPress:_e})),Pt=l.React.createElement(d.Forms.FormSection,{title:"Custom Timestamp"},l.React.createElement(d.Forms.FormRow,{label:"UK time (GMT/BST)"+(A(o)?" - ON":" - off"),subLabel:"Automatic timestamps use UK time. Handles BST/GMT automatically.",trailing:l.React.createElement(d.Forms.FormSwitch,{value:A(o),onValueChange:u=>{o.ukTime=u,M()}})}),l.React.createElement(d.Forms.FormRow,{label:A(o)?"UTC mode (ignored while UK is on)":o.useUTC?"Using UTC Time":"Using Local Time",subLabel:A(o)?"Turn off UK time above to use this.":o.useUTC?"Time will be the same for everyone":"Time will adjust to viewer's timezone",trailing:l.React.createElement(d.Forms.FormSwitch,{value:o.useUTC||!1,onValueChange:u=>{o.useUTC=u,M()}})}),l.React.createElement(d.Forms.FormInput,{title:"Year",placeholder:"YYYY",value:String(P),onChange:u=>{let f=parseInt(u);o.customYear=isNaN(f)?x.getFullYear():f},keyboardType:"number-pad"}),l.React.createElement(d.Forms.FormInput,{title:"Month",placeholder:"1-12",value:String(Ne),onChange:u=>{let f=parseInt(u);o.customMonth=isNaN(f)?x.getMonth()+1:Math.min(Math.max(f,1),12)},keyboardType:"number-pad"}),l.React.createElement(d.Forms.FormInput,{title:"Day",placeholder:"1-31",value:String(Pe),onChange:u=>{let f=parseInt(u);o.customDay=isNaN(f)?x.getDate():Math.min(Math.max(f,1),31)},keyboardType:"number-pad"}),l.React.createElement(d.Forms.FormInput,{title:"Hour",placeholder:"0-23",value:String(Le),onChange:u=>{let f=parseInt(u);o.customHour=isNaN(f)?x.getHours():Math.min(Math.max(f,0),23)},keyboardType:"number-pad"}),l.React.createElement(d.Forms.FormInput,{title:"Minute",placeholder:"0-59",value:String(Ae),onChange:u=>{let f=parseInt(u);o.customMinute=isNaN(f)?x.getMinutes():Math.min(Math.max(f,0),59)},keyboardType:"number-pad"}),l.React.createElement(d.Forms.FormRow,{label:"Send Fake Message",subLabel:`${N} messages saved | Timestamp: ${P}-${String(Ne).padStart(2,"0")}-${String(Pe).padStart(2,"0")} ${String(Le).padStart(2,"0")}:${String(Ae).padStart(2,"0")}`,onPress:_e})),Lt=l.React.createElement(d.Forms.FormSection,{title:"Conversation Builder"},l.React.createElement(d.Forms.FormInput,{title:"Conversation",placeholder:`One line each:
-userId [time] [^reply] - message
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-me = you | them = the User ID above
-^N = reply to line N | ^ = reply to previous
+// src/index.ts
+var src_exports = {};
+__export(src_exports, {
+  onLoad: () => onLoad,
+  onUnload: () => onUnload,
+  settings: () => settings
+});
+module.exports = __toCommonJS(src_exports);
 
-Example:
-me [9pm] - hey
-them [9:01pm] ^1 - hi back
-me ^ - lol`,value:o.conversationText||"",onChange:u=>{o.conversationText=u||""},multiline:!0}),l.React.createElement(d.Forms.FormRow,{label:"Build Conversation",subLabel:"'me' = you, 'them' = the User ID above. Reply with ^N or ^ (previous).",onPress:async()=>{await Dt()}}),l.React.createElement(d.Forms.FormInput,{title:"Save this conversation as (optional)",placeholder:"A name to find it later",value:o.convoSaveName||"",onChange:u=>{o.convoSaveName=u||""}}),l.React.createElement(d.Forms.FormRow,{label:"Save conversation",subLabel:"Saves the text above on-device to reload later.",onPress:()=>{let u=o.conversationText||"";if(!u.trim()){p("Nothing to save.");return}let f=(o.savedConvos||[]).slice(),I=(""+(o.convoSaveName||"")).trim()||"Saved "+(f.length+1);f.push({name:I,text:u}),o.savedConvos=f,o.convoSaveName="",p('Saved "'+I+'".'),M()}}),(o.savedConvos||[]).length?l.React.createElement(d.Forms.FormRow,{label:"Clear saved conversations",subLabel:(o.savedConvos||[]).length+" saved. Removes them all.",onPress:()=>{o.savedConvos=[],p("Cleared saved conversations."),M()}}):null,...(o.savedConvos||[]).map((u,f)=>l.React.createElement(d.Forms.FormRow,{key:"sc"+f,label:u.name,subLabel:"Tap to load this into the builder.",onPress:()=>{o.conversationText=u.text||"",p('Loaded "'+u.name+'".'),M()}}))),At=l.React.createElement(l.React.Fragment,{},l.React.createElement(d.Forms.FormSection,{title:"SDM Preset Script"},l.React.createElement(d.Forms.FormRow,{label:"How it works",subLabel:"Write a message template below. When you run /sdm (userid) without a message, this script is sent instead. Use [server] and any custom keywords you define."}),l.React.createElement(d.Forms.FormInput,{key:"sdmscript"+e,title:"Preset Script",placeholder:"e.g. Hey! I saw you in [server], wanted to reach out about [topic]...",value:o.sdmScript||"",onChange:u=>{o.sdmScript=u||""},multiline:!0}),l.React.createElement(d.Forms.FormRow,{label:"Preview",subLabel:(()=>{let u=o.sdmScript||"";if(!u.trim())return"(no script set)";let f=Ee(u,K());return f.length>200?f.slice(0,200)+"...":f})()}),l.React.createElement(d.Forms.FormRow,{label:"Custom Keywords",subLabel:(o.sdmKeywords||[]).length?(o.sdmKeywords||[]).length+" keyword(s) defined. Use [keyword] in your script.":"No custom keywords yet. Add one below."}),...(o.sdmKeywords||[]).map((u,f)=>l.React.createElement(d.Forms.FormRow,{key:"kw"+f,label:"["+u.key+"] = "+u.value,subLabel:"Tap to remove this keyword.",leading:d.Forms.FormRow.Icon?l.React.createElement(d.Forms.FormRow.Icon,{source:(0,F.getAssetIDByName)("ic_trash_24px")}):void 0,onPress:()=>{let I=(o.sdmKeywords||[]).slice();I.splice(f,1),o.sdmKeywords=I,p("Removed ["+u.key+"]."),M()}})),l.React.createElement(d.Forms.FormInput,{key:"newkwname"+e,title:"New keyword name",placeholder:"e.g. topic, greeting, invite",value:o.newKeywordName||"",onChange:u=>{o.newKeywordName=u||""}}),l.React.createElement(d.Forms.FormInput,{key:"newkwval"+e,title:"New keyword value",placeholder:"What [keyword] gets replaced with",value:o.newKeywordValue||"",onChange:u=>{o.newKeywordValue=u||""}}),l.React.createElement(d.Forms.FormRow,{label:"Add Keyword",leading:d.Forms.FormRow.Icon?l.React.createElement(d.Forms.FormRow.Icon,{source:(0,F.getAssetIDByName)("ic_add_24px")||(0,F.getAssetIDByName)("ic_add")}):void 0,onPress:()=>{let u=(""+(o.newKeywordName||"")).trim().toLowerCase().replace(/[[\]]/g,""),f=(""+(o.newKeywordValue||"")).trim();if(!u){p("Enter a keyword name first.");return}if(!f){p("Enter a value for ["+u+"].");return}if(u==="server"){p("Use the Server ID field on the Message tab for [server].");return}let I=(o.sdmKeywords||[]).slice(),H=I.findIndex(re=>re.key===u);H!==-1?I[H]={key:u,value:f}:I.push({key:u,value:f}),o.sdmKeywords=I,o.newKeywordName="",o.newKeywordValue="",p("Added ["+u+"] = "+f),M()}}),l.React.createElement(d.Forms.FormRow,{label:"Clear All Keywords",subLabel:"Remove every custom keyword.",leading:d.Forms.FormRow.Icon?l.React.createElement(d.Forms.FormRow.Icon,{source:(0,F.getAssetIDByName)("ic_trash_24px")}):void 0,onPress:()=>{o.sdmKeywords=[],p("Cleared all custom keywords."),M()}})),l.React.createElement(d.Forms.FormSection,{title:"Bulk SDM"},l.React.createElement(d.Forms.FormRow,{label:"How it works",subLabel:"One target per line: userId serverId. Each gets the preset script with [server] resolved to their specific server. Run with the button below or /sdm-bulk."}),l.React.createElement(d.Forms.FormInput,{key:"sdmbulk"+e,title:"Bulk Target List",placeholder:`userId serverId
-userId serverId
+// src/compat.ts
+var vd = window.vendetta || window.bunny || {};
+function _before(method, obj, cb) {
+  const orig = obj[method];
+  const fn = function(...args) {
+    try {
+      const r = cb.call(this, args);
+      if (Array.isArray(r)) return orig.apply(this, r);
+    } catch {
+    }
+    return orig.apply(this, args);
+  };
+  obj[method] = fn;
+  return () => {
+    if (obj[method] === fn) obj[method] = orig;
+  };
+}
+function _after(method, obj, cb) {
+  const orig = obj[method];
+  const fn = function(...args) {
+    const r = orig.apply(this, args);
+    try {
+      return cb.call(this, args, r);
+    } catch {
+      return r;
+    }
+  };
+  obj[method] = fn;
+  return () => {
+    if (obj[method] === fn) obj[method] = orig;
+  };
+}
+var before = vd?.patcher?.before || vd?.api?.patcher?.before || _before;
+var after = vd?.patcher?.after || vd?.api?.patcher?.after || _after;
+var metroModules = window.modules;
+function _findByProps(...props) {
+  if (!metroModules) return null;
+  for (const id in metroModules) {
+    const mod = metroModules[id];
+    if (!mod?.isInitialized) continue;
+    const exp = mod.publicModule?.exports;
+    if (!exp || typeof exp !== "object") continue;
+    if (props.every((p) => exp[p] !== void 0)) return exp;
+    if (exp.default && typeof exp.default === "object" && props.every((p) => exp.default[p] !== void 0)) return exp.default;
+  }
+  return null;
+}
+function _findByStoreName(name) {
+  if (!metroModules) return null;
+  for (const id in metroModules) {
+    const mod = metroModules[id];
+    if (!mod?.isInitialized) continue;
+    const exp = mod.publicModule?.exports;
+    if (!exp) continue;
+    const check = exp.default || exp;
+    if (check?.getName?.() === name || check?.constructor?.displayName === name) return check;
+  }
+  return null;
+}
+function _lazyProxy(finder) {
+  let cache;
+  let resolved = false;
+  return new Proxy({}, {
+    get(_t, prop) {
+      if (!resolved) {
+        cache = finder();
+        resolved = true;
+      }
+      return cache?.[prop];
+    },
+    apply(_t, thisArg, args) {
+      if (!resolved) {
+        cache = finder();
+        resolved = true;
+      }
+      return typeof cache === "function" ? cache.apply(thisArg, args) : void 0;
+    }
+  });
+}
+var _metroFromVd = vd?.metro;
+function findByProps(...props) {
+  if (_metroFromVd?.findByProps) try {
+    return _metroFromVd.findByProps(...props);
+  } catch {
+  }
+  return _findByProps(...props);
+}
+function findByStoreName(name) {
+  if (_metroFromVd?.findByStoreName) try {
+    return _metroFromVd.findByStoreName(name);
+  } catch {
+  }
+  return _findByStoreName(name);
+}
+function findByPropsLazy(...props) {
+  if (_metroFromVd?.findByPropsLazy) try {
+    return _metroFromVd.findByPropsLazy(...props);
+  } catch {
+  }
+  return _lazyProxy(() => findByProps(...props));
+}
+function findByStoreNameLazy(name) {
+  if (_metroFromVd?.findByStoreNameLazy) try {
+    return _metroFromVd.findByStoreNameLazy(name);
+  } catch {
+  }
+  return _lazyProxy(() => findByStoreName(name));
+}
+var _common = vd?.metro?.common || {};
+var React = _common.React || findByProps("createElement", "useState");
+var ReactNative = _common.ReactNative || findByProps("View", "Text", "ScrollView");
+var FluxDispatcher = _common.FluxDispatcher || findByProps("dispatch", "subscribe");
+var Forms = vd?.ui?.components?.Forms || findByProps("FormSection", "FormRow", "FormInput") || {};
+function showToast(msg) {
+  try {
+    (vd?.ui?.toasts?.showToast || vd?.toasts?.showToast)?.(msg);
+    return;
+  } catch {
+  }
+  try {
+    const Toasts = findByProps("open", "close", "create");
+    if (Toasts?.open) {
+      Toasts.open({ content: msg, source: null });
+      return;
+    }
+  } catch {
+  }
+}
+function getAssetIDByName(name) {
+  try {
+    return (vd?.ui?.assets?.getAssetIDByName || vd?.assets?.getAssetIDByName)?.(name);
+  } catch {
+  }
+  try {
+    const AssetRegistry = findByProps("registerAsset", "getAssetByID");
+    if (AssetRegistry?.getAssetByID) {
+      for (let i = 1; i < 5e4; i++) {
+        try {
+          const a = AssetRegistry.getAssetByID(i);
+          if (a?.name === name) return i;
+        } catch {
+          break;
+        }
+      }
+    }
+  } catch {
+  }
+  return void 0;
+}
+function findInReactTree(tree, filter) {
+  try {
+    const fn = vd?.utils?.findInReactTree;
+    if (fn) return fn(tree, filter);
+  } catch {
+  }
+  if (!tree) return null;
+  if (filter(tree)) return tree;
+  if (Array.isArray(tree)) {
+    for (const child of tree) {
+      const r = findInReactTree(child, filter);
+      if (r) return r;
+    }
+  }
+  if (tree.props) {
+    const children = tree.props.children;
+    if (children) {
+      const r = findInReactTree(children, filter);
+      if (r) return r;
+    }
+  }
+  return null;
+}
+var _storage = null;
+function getStorage() {
+  if (_storage) return _storage;
+  try {
+    const ps = vd?.plugin?.storage;
+    if (ps && typeof ps === "object") {
+      _storage = ps;
+      return _storage;
+    }
+  } catch {
+  }
+  try {
+    const raw = window.__spoofer_data;
+    if (raw && typeof raw === "object") {
+      _storage = raw;
+      return _storage;
+    }
+  } catch {
+  }
+  _storage = {};
+  window.__spoofer_data = _storage;
+  return _storage;
+}
+function registerCommand(cmd) {
+  try {
+    const fn = vd?.commands?.registerCommand;
+    if (fn) return fn(cmd);
+  } catch {
+  }
+  return () => {
+  };
+}
 
-e.g.
-123456789 987654321
-111222333 444555666`,value:o.sdmBulkList||"",onChange:u=>{o.sdmBulkList=u||""},multiline:!0}),l.React.createElement(d.Forms.FormRow,{label:(()=>{let u=(""+(o.sdmBulkList||"")).trim();if(!u)return"0 targets";let f=u.split(/\r?\n/).filter(I=>I.trim()&&/^\d{5,}/.test(I.trim())).length;return f+" target"+(f===1?"":"s")+" in list"})(),subLabel:"Each line should be: userId serverId (server ID is optional)."}),l.React.createElement(d.Forms.FormRow,{label:"Run Bulk SDM",subLabel:"Opens a DM with each target and sends the preset script.",leading:d.Forms.FormRow.Icon?l.React.createElement(d.Forms.FormRow.Icon,{source:(0,F.getAssetIDByName)("ic_send")}):void 0,onPress:async()=>{await be(),M()}}),l.React.createElement(d.Forms.FormRow,{label:"Clear Bulk List",leading:d.Forms.FormRow.Icon?l.React.createElement(d.Forms.FormRow.Icon,{source:(0,F.getAssetIDByName)("ic_trash_24px")}):void 0,onPress:()=>{o.sdmBulkList="",p("Cleared bulk list."),M()}}))),_t=l.React.createElement(d.Forms.FormSection,{title:"Saved Messages"},l.React.createElement(d.Forms.FormRow,{label:"Clear Saved Messages",subLabel:N+" saved. These replay each time you reopen a channel - clearing stops that.",leading:d.Forms.FormRow.Icon?l.React.createElement(d.Forms.FormRow.Icon,{source:(0,F.getAssetIDByName)("ic_trash_24px")}):void 0,onPress:()=>{he(),M()}}),l.React.createElement(d.Forms.FormRow,{label:"Remove All Spoofed Messages",subLabel:"Deletes every spoofed message from view now and clears the saved list.",leading:d.Forms.FormRow.Icon?l.React.createElement(d.Forms.FormRow.Icon,{source:(0,F.getAssetIDByName)("ic_trash_24px")}):void 0,onPress:()=>{Ct(),M()}})),Oe=[Nt,Pt,Lt,At,_t],Ot=["Message","Time","Convo","SDM","Saved"];return y?l.React.createElement(l.React.Fragment,{},l.React.createElement(d.Forms.FormRow,{label:"Local Message Spoofer",subLabel:"Local-only fake messages - nothing leaves your device"}),l.React.createElement(i,{key:"pager"},l.React.createElement(i,{style:{flexDirection:"row",paddingHorizontal:6,marginBottom:10,marginTop:4}},...Ot.map((u,f)=>l.React.createElement(m,{key:"tab"+f,style:{flex:1,paddingVertical:9,alignItems:"center",borderBottomWidth:2,borderBottomColor:t===f?"#5865f2":"rgba(255,255,255,0.08)"},onPress:()=>{r(f);try{s.current?.scrollTo({x:f*h,animated:!0})}catch{}}},l.React.createElement(b,{style:{color:t===f?"#ffffff":"#949ba4",fontSize:13,fontWeight:t===f?"600":"400"}},u)))),l.React.createElement(c,{ref:s,horizontal:!0,pagingEnabled:!0,showsHorizontalScrollIndicator:!1,keyboardShouldPersistTaps:"handled",onMomentumScrollEnd:u=>{try{r(Math.round(u.nativeEvent.contentOffset.x/h))}catch{}}},...Oe.map((u,f)=>l.React.createElement(i,{key:"page"+f,style:{width:h}},l.React.createElement(c,{style:{maxHeight:560},contentContainerStyle:{paddingTop:8,paddingHorizontal:14,paddingBottom:180},keyboardShouldPersistTaps:"handled",nestedScrollEnabled:!0},u)))))):l.React.createElement(l.React.Fragment,{},l.React.createElement(d.Forms.FormRow,{label:"Local Message Spoofer",subLabel:"Local-only fake messages - nothing leaves your device"}),...Oe)}function dn(e){let n=[];try{let i=ke?.getGuilds?.()||{};n=Object.keys(i).map(c=>i[c]).filter(c=>c?.name),n.sort((c,m)=>(""+c.name).localeCompare(""+m.name))}catch{}let t=(""+(o.serverSearch||"")).trim().toLowerCase();t&&(n=n.filter(i=>(""+i.name).toLowerCase().indexOf(t)!==-1));let r=n.length,s=n.slice(0,30),a=[l.React.createElement(d.Forms.FormInput,{key:"ssearch",title:"Search servers",placeholder:"Type a server name",value:o.serverSearch||"",onChange:i=>{o.serverSearch=i||"",e()}})];return s.length||a.push(l.React.createElement(d.Forms.FormRow,{key:"snone",label:t?"(no servers match)":"(no servers found)"})),s.forEach(i=>a.push(l.React.createElement(d.Forms.FormRow,{key:"g"+i.id,label:i.name,onPress:()=>{o.serverTagId=i.id,o.serverPickerOpen=!1,o.serverSearch="",p('Set to "'+i.name+'".'),e()}}))),r>s.length&&a.push(l.React.createElement(d.Forms.FormRow,{key:"smore",label:r-s.length+" more - keep typing to narrow",subLabel:"Showing the first 30 matches."})),a}var Fe=[],mn=()=>{et();let e=Ut(),n=Et(),t=r=>{try{r?.channelId&&It(r.channelId)}catch{}};Re.FluxDispatcher.subscribe("CHANNEL_SELECT",t);try{Mt()}catch{}Fe=[...n,...e,()=>Re.FluxDispatcher.unsubscribe("CHANNEL_SELECT",t)]},fn=()=>{Fe.forEach(e=>{try{e()}catch{}}),Fe=[],Y.clear(),X(!1)},pn=xe;
+// src/state.ts
+var defaults = {
+  userId: "",
+  message: "",
+  serverTagId: "",
+  serverPickerOpen: false,
+  serverSearch: "",
+  embedsEnabled: true,
+  ukTime: true,
+  useUTC: false,
+  customYear: 0,
+  customMonth: 0,
+  customDay: 0,
+  customHour: 0,
+  customMinute: 0,
+  conversationText: "",
+  convoSaveName: "",
+  savedConvos: [],
+  savedMessages: [],
+  profiles: {},
+  profileId: "",
+  profileName: "",
+  profileAvatar: "",
+  profileSource: "",
+  profileJoined: "",
+  profileAccount: "",
+  profileSelf: false,
+  sdmScript: "",
+  sdmKeywords: [],
+  sdmBulkList: "",
+  newKeywordName: "",
+  newKeywordValue: "",
+  _lastUpdate: 0
+};
+function initDefaults() {
+  const s = getStorage();
+  for (const k in defaults) {
+    if (s[k] === void 0) {
+      s[k] = defaults[k];
+    }
+  }
+}
+var storage = getStorage();
+var originalMessages = /* @__PURE__ */ new Map();
+var isLocalEditing = false;
+function setLocalEditing(val) {
+  isLocalEditing = val;
+}
+var selfActive = false;
+var selfId = null;
+var selfAt = 0;
+function setSelfSpoof(id, active) {
+  selfId = id;
+  selfActive = active;
+  selfAt = active ? Date.now() : 0;
+}
+var _cuReal = null;
+var _cuId = null;
+var _cuProxy = null;
+function getSpoofedCU() {
+  return { real: _cuReal, id: _cuId, proxy: _cuProxy };
+}
+function setSpoofedCU(real, id, proxy) {
+  _cuReal = real;
+  _cuId = id;
+  _cuProxy = proxy;
+}
+
+// src/utils.ts
+var _lastSnow = 0;
+function genId(isoOrDate) {
+  const t = typeof isoOrDate === "string" ? new Date(isoOrDate).getTime() : isoOrDate.getTime();
+  let b = (t - 14200704e5) * 4194304;
+  if (!(b > _lastSnow)) b = _lastSnow + 8192;
+  _lastSnow = b;
+  return b.toString();
+}
+function createdAtFromId(id) {
+  try {
+    const ms = Math.floor(Number(id) / 4194304) + 14200704e5;
+    if (isFinite(ms)) return new Date(ms);
+  } catch {
+  }
+  return null;
+}
+function lastSundayDate(year, month1) {
+  const last = new Date(Date.UTC(year, month1, 0));
+  return last.getUTCDate() - last.getUTCDay();
+}
+function ukIsBSTInstant(t) {
+  const y = t.getUTCFullYear();
+  const start = Date.UTC(y, 2, lastSundayDate(y, 3), 1, 0, 0);
+  const end = Date.UTC(y, 9, lastSundayDate(y, 10), 1, 0, 0);
+  const ms = t.getTime();
+  return ms >= start && ms < end;
+}
+function ukNowDate() {
+  const now = /* @__PURE__ */ new Date();
+  const off = ukIsBSTInstant(now) ? 60 : 0;
+  const s = new Date(now.getTime() + off * 6e4);
+  return new Date(s.getUTCFullYear(), s.getUTCMonth(), s.getUTCDate(), s.getUTCHours(), s.getUTCMinutes(), s.getUTCSeconds(), s.getUTCMilliseconds());
+}
+function ukOn(storage2) {
+  try {
+    return storage2.ukTime !== false;
+  } catch {
+    return true;
+  }
+}
+function nowDate(storage2) {
+  return ukOn(storage2) ? ukNowDate() : /* @__PURE__ */ new Date();
+}
+function nowISO(storage2) {
+  return nowDate(storage2).toISOString();
+}
+function extractId(x) {
+  try {
+    if (!x) return null;
+    if (typeof x === "string") return /^\d+$/.test(x) ? x : null;
+    if (x.id) return x.id;
+    if (x.userId) return x.userId;
+    if (x.user && x.user.id) return x.user.id;
+  } catch {
+  }
+  return null;
+}
+function forceSet(o, k, v) {
+  if (!o) return;
+  try {
+    o[k] = v;
+  } catch {
+  }
+  try {
+    if (o[k] !== v) Object.defineProperty(o, k, { value: v, writable: true, configurable: true, enumerable: true });
+  } catch {
+  }
+}
+function forceNull(o, k) {
+  try {
+    if (!(k in o)) return;
+  } catch {
+    return;
+  }
+  forceSet(o, k, null);
+}
+function mkISO(Y0, Mo, D0, H0, Mi, useUTC) {
+  const dt = useUTC ? new Date(Date.UTC(Y0, Mo - 1, D0, H0, Mi, 0, 0)) : new Date(Y0, Mo - 1, D0, H0, Mi, 0, 0);
+  return isNaN(dt.getTime()) ? null : dt.toISOString();
+}
+function parseTime(str, base, useUTC) {
+  const s = (str || "").trim();
+  if (!s) return null;
+  let m;
+  if (m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})[ T]+(\d{1,2}):(\d{2})$/))
+    return mkISO(+m[1], +m[2], +m[3], +m[4], +m[5], useUTC);
+  if (m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/))
+    return mkISO(+m[1], +m[2], +m[3], 0, 0, useUTC);
+  if (m = s.match(/^(\d{1,2})(?::(\d{2}))?\s*([ap]m)$/i)) {
+    let H0 = +m[1];
+    const Mi = m[2] ? +m[2] : 0;
+    const ap = m[3].toLowerCase();
+    if (ap === "pm" && H0 !== 12) H0 += 12;
+    if (ap === "am" && H0 === 12) H0 = 0;
+    return mkISO(base.y, base.mo, base.d, H0, Mi, useUTC);
+  }
+  if (m = s.match(/^(\d{1,2}):(\d{2})$/))
+    return mkISO(base.y, base.mo, base.d, +m[1], +m[2], useUTC);
+  return null;
+}
+function parseLine(line) {
+  const raw = (line || "").trim();
+  if (!raw) return null;
+  let m;
+  if (m = raw.match(/^([^\s[\^|:\-–—]+)\s*\[([^\]]+)\]\s*(\^\d*)?\s*[-–—|:]\s*([\s\S]*)$/))
+    return { uid: m[1], time: m[2].trim(), reply: pRef(m[3]), content: m[4] };
+  if (m = raw.match(/^([^\s[\^|:\-–—]+)\s*(\^\d*)?\s*[-–—|:]\s*([\s\S]*)$/))
+    return { uid: m[1], time: null, reply: pRef(m[2]), content: m[3] };
+  return null;
+}
+function pRef(tok) {
+  if (!tok) return null;
+  const nn = tok.slice(1);
+  return nn ? { line: parseInt(nn, 10) } : { prev: true };
+}
+function decodeEntities(str) {
+  return ("" + str).replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#x2F;/gi, "/").trim();
+}
+
+// src/engine.ts
+var UserStore = findByStoreNameLazy("UserStore");
+var ChannelStore = findByStoreNameLazy("ChannelStore");
+var ChannelSelectors = findByPropsLazy("getChannelId", "getLastSelectedChannelId");
+var ChannelModule = findByPropsLazy("getChannel", "getChannelId");
+var GuildStore = findByStoreNameLazy("GuildStore");
+var MessageStore = findByStoreNameLazy("MessageStore");
+var EditModule = findByPropsLazy("sendMessage", "startEditMessage", "editMessage");
+var ActionSheetModule = findByPropsLazy("openLazy", "hideActionSheet");
+var ActionSheetRow = findByPropsLazy("ActionSheetRow");
+var resolving = /* @__PURE__ */ new Set();
+var _avSrc = /* @__PURE__ */ new Map();
+function getCurrentChannelId() {
+  try {
+    const id = ChannelSelectors?.getChannelId?.();
+    if (id) return id;
+  } catch {
+  }
+  try {
+    const id = ChannelModule?.getChannelId?.();
+    if (id) return id;
+  } catch {
+  }
+  return null;
+}
+function resolveServerName(inlineId, channelId) {
+  try {
+    let id = inlineId;
+    if (!id) id = ("" + (storage.serverTagId || "")).trim();
+    if (!id && channelId) {
+      const ch = ChannelModule?.getChannel?.(channelId);
+      id = ch?.guild_id;
+    }
+    if (id && GuildStore?.getGuild) {
+      const g = GuildStore.getGuild(id);
+      if (g?.name) return g.name;
+    }
+  } catch {
+  }
+  return null;
+}
+function applyTags(content, channelId) {
+  if (!content) return content;
+  let out = content;
+  if (out.indexOf("[server") !== -1) {
+    out = out.replace(/\[server:(\d{5,25})\]/gi, (_m, id) => resolveServerName(id, channelId) || _m);
+    out = out.replace(/\[server\]/gi, (_m) => resolveServerName(null, channelId) || _m);
+  }
+  const keywords = storage.sdmKeywords;
+  if (keywords?.length) {
+    for (let ki = 0; ki < keywords.length; ki++) {
+      const kw = keywords[ki];
+      if (kw?.key && kw?.value) {
+        const tag = "[" + kw.key + "]";
+        while (out.indexOf(tag) !== -1) {
+          out = out.split(tag).join(kw.value);
+        }
+      }
+    }
+  }
+  return out;
+}
+function anyProf() {
+  const p = storage.profiles;
+  if (!p) return false;
+  for (const _k in p) return true;
+  return false;
+}
+function firstProfiledId(args) {
+  if (!args) return null;
+  if (!anyProf()) return null;
+  const profs = storage.profiles || {};
+  for (let i = 0; i < args.length; i++) {
+    const id = extractId(args[i]);
+    if (id && profs[id]) return id;
+  }
+  return null;
+}
+function resolveName(uid) {
+  const prof = (storage.profiles || {})[uid];
+  if (!prof) return null;
+  if (prof.name) return prof.name;
+  if (prof.sourceId && !resolving.has(uid)) {
+    resolving.add(uid);
+    try {
+      const src = UserStore.getUser(prof.sourceId);
+      if (src) return src.globalName || src.global_name || src.username || null;
+    } catch {
+    } finally {
+      resolving.delete(uid);
+    }
+  }
+  return null;
+}
+function resolveUsername(uid) {
+  const prof = (storage.profiles || {})[uid];
+  if (!prof) return null;
+  if (prof.sourceId && !resolving.has(uid)) {
+    resolving.add(uid);
+    try {
+      const src = UserStore.getUser(prof.sourceId);
+      if (src) return src.username || null;
+    } catch {
+    } finally {
+      resolving.delete(uid);
+    }
+  }
+  return prof.name || null;
+}
+function resolveAvatar(uid) {
+  const prof = (storage.profiles || {})[uid];
+  if (!prof) return null;
+  if (prof.sourceId && !resolving.has(uid)) {
+    resolving.add(uid);
+    try {
+      const src = UserStore.getUser(prof.sourceId);
+      if (src && typeof src.getAvatarURL === "function") {
+        const u = src.getAvatarURL();
+        if (u) return u;
+      }
+    } catch {
+    } finally {
+      resolving.delete(uid);
+    }
+  }
+  return prof.avatar || null;
+}
+function mirrorSource(id, ret) {
+  const uri = resolveAvatar(id);
+  if (!uri) return ret;
+  const prev = _avSrc.get(id);
+  if (prev && prev.uri === uri) return prev.obj;
+  const obj = ret && typeof ret === "object" ? Object.assign({}, ret, { uri }) : { uri };
+  _avSrc.set(id, { uri, obj });
+  return obj;
+}
+function resolveCreated(uid) {
+  const prof = (storage.profiles || {})[uid];
+  if (!prof) return null;
+  if (prof.accountDate) {
+    const d = new Date(prof.accountDate);
+    if (!isNaN(d.getTime())) return d;
+  }
+  if (prof.sourceId) return createdAtFromId(prof.sourceId);
+  return null;
+}
+function resolveJoined(uid) {
+  const prof = (storage.profiles || {})[uid];
+  if (!prof) return null;
+  if (prof.joinedAt) return prof.joinedAt;
+  if (prof.sourceId) {
+    const d = createdAtFromId(prof.sourceId);
+    if (d) return d.toISOString();
+  }
+  return null;
+}
+function resolveBanner(uid) {
+  const prof = (storage.profiles || {})[uid];
+  if (!prof || !prof.sourceId) return null;
+  if (resolving.has("b" + uid)) return null;
+  resolving.add("b" + uid);
+  try {
+    const src = UserStore.getUser(prof.sourceId);
+    if (src && typeof src.getBannerURL === "function") {
+      let u;
+      try {
+        u = src.getBannerURL({ size: 2048 });
+      } catch {
+      }
+      if (!u) try {
+        u = src.getBannerURL();
+      } catch {
+      }
+      if (u) return u;
+    }
+    let bh = src?.banner;
+    if (!bh) {
+      try {
+        const UPS = findByStoreName("UserProfileStore");
+        const sp = UPS?.getUserProfile?.(prof.sourceId);
+        if (sp?.banner) bh = sp.banner;
+      } catch {
+      }
+    }
+    if (bh) {
+      const ext = ("" + bh).indexOf("a_") === 0 ? "gif" : "png";
+      return "https://cdn.discordapp.com/banners/" + prof.sourceId + "/" + bh + "." + ext + "?size=2048";
+    }
+  } catch {
+  } finally {
+    resolving.delete("b" + uid);
+  }
+  return null;
+}
+function resolveAccent(uid) {
+  const prof = (storage.profiles || {})[uid];
+  if (!prof || !prof.sourceId) return null;
+  if (resolving.has("a" + uid)) return null;
+  resolving.add("a" + uid);
+  try {
+    const src = UserStore.getUser(prof.sourceId);
+    if (src?.accentColor != null) return src.accentColor;
+  } catch {
+  } finally {
+    resolving.delete("a" + uid);
+  }
+  return null;
+}
+function mkAuthor(uid) {
+  let u = null;
+  try {
+    u = UserStore.getUser(uid);
+  } catch {
+  }
+  const dn = resolveName(uid);
+  const un = resolveUsername(uid);
+  const av = resolveAvatar(uid);
+  return {
+    id: uid,
+    username: un || (u ? u.username : "FakeUser"),
+    global_name: dn || (u ? u.globalName || u.global_name || null : null),
+    discriminator: u ? u.discriminator : "0001",
+    avatar: av || (u ? u.avatar : null),
+    bot: u ? u.bot : false
+  };
+}
+function spoofCU(real, id) {
+  try {
+    const cached = getSpoofedCU();
+    if (cached.proxy && cached.real === real && cached.id === id) return cached.proxy;
+    const desc = Object.getOwnPropertyDescriptors(real);
+    delete desc.id;
+    const clone = Object.create(Object.getPrototypeOf(real), desc);
+    Object.defineProperty(clone, "id", { value: id, writable: true, enumerable: true, configurable: true });
+    try {
+      const ca = resolveCreated(id);
+      if (ca) forceSet(clone, "createdAt", ca);
+    } catch {
+    }
+    setSpoofedCU(real, id, clone);
+    return clone;
+  } catch {
+    return real;
+  }
+}
+async function fetchT(url, ms, opts) {
+  const ctl = typeof AbortController === "function" ? new AbortController() : null;
+  const timer = ctl ? setTimeout(() => {
+    try {
+      ctl.abort();
+    } catch {
+    }
+  }, ms || 8e3) : null;
+  try {
+    return await fetch(url, Object.assign({}, opts, ctl ? { signal: ctl.signal } : {}));
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+function metaTag(html, prop) {
+  try {
+    let m = html.match(new RegExp(`<meta[^>]+(?:property|name)=["']` + prop + `["'][^>]*?content=["']([^"']*)["']`, "i"));
+    if (m?.[1]) return decodeEntities(m[1]);
+    m = html.match(new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]*?(?:property|name)=["']` + prop + `["']`, "i"));
+    if (m?.[1]) return decodeEntities(m[1]);
+  } catch {
+  }
+  return null;
+}
+function ytId(url) {
+  let m;
+  if (m = url.match(/[?&]v=([\w-]{11})/)) return m[1];
+  if (m = url.match(/youtu\.be\/([\w-]{11})/)) return m[1];
+  if (m = url.match(/youtube\.com\/shorts\/([\w-]{11})/)) return m[1];
+  if (m = url.match(/youtube\.com\/embed\/([\w-]{11})/)) return m[1];
+  if (m = url.match(/youtube\.com\/live\/([\w-]{11})/)) return m[1];
+  return null;
+}
+async function fetchYouTube(url) {
+  const vid = ytId(url);
+  let data = {};
+  try {
+    const res = await fetchT("https://www.youtube.com/oembed?format=json&url=" + encodeURIComponent(url), 8e3);
+    if (res?.ok) data = await res.json();
+  } catch {
+  }
+  if (!vid && !data.title) return null;
+  const w = data.thumbnail_width || 1280, h = data.thumbnail_height || 720;
+  const embed = { type: vid ? "video" : "rich", url, color: 16711680, provider: { name: "YouTube", url: "https://www.youtube.com" } };
+  if (data.title) embed.title = ("" + data.title).slice(0, 256);
+  if (data.author_name) embed.author = { name: data.author_name, url: data.author_url };
+  const thumb = data.thumbnail_url || (vid ? "https://i.ytimg.com/vi/" + vid + "/hqdefault.jpg" : null);
+  if (thumb) embed.thumbnail = { url: thumb, proxy_url: thumb, width: w, height: h };
+  if (vid) embed.video = { url: "https://www.youtube.com/embed/" + vid, width: 1280, height: 720 };
+  return embed;
+}
+async function fetchOpenGraph(url) {
+  try {
+    const res = await fetchT(url, 8e3, {
+      headers: { Accept: "text/html,application/xhtml+xml", "User-Agent": "Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)" }
+    });
+    if (!res?.ok) return null;
+    let html = await res.text();
+    if (html?.length > 6e5) html = html.slice(0, 6e5);
+    const title = metaTag(html, "og:title") || metaTag(html, "twitter:title") || (() => {
+      const m = html.match(/<title[^>]*>([^<]*)<\/title>/i);
+      return m ? decodeEntities(m[1]) : null;
+    })();
+    const desc = metaTag(html, "og:description") || metaTag(html, "twitter:description") || metaTag(html, "description");
+    const image = metaTag(html, "og:image") || metaTag(html, "og:image:url") || metaTag(html, "twitter:image");
+    const site = metaTag(html, "og:site_name");
+    if (!title && !desc && !image) return null;
+    const embed = { type: "rich", url, color: 5198940 };
+    if (title) embed.title = title.slice(0, 256);
+    if (desc) embed.description = desc.slice(0, 350);
+    if (site) embed.footer = { text: site };
+    if (image) embed.image = { url: image, proxy_url: image };
+    return embed;
+  } catch {
+    return null;
+  }
+}
+async function fetchEmbeds(content) {
+  const out = [];
+  try {
+    const urls = ("" + (content || "")).match(/https?:\/\/[^\s<>]+/g) || [];
+    const seen = {};
+    for (let i = 0; i < urls.length && out.length < 4; i++) {
+      const url = urls[i].replace(/[)\].,!?'"]+$/, "");
+      if (seen[url]) continue;
+      seen[url] = true;
+      if (/(?:youtube\.com\/watch\?|youtu\.be\/|youtube\.com\/shorts\/|youtube\.com\/embed\/)/i.test(url)) {
+        const em = await fetchYouTube(url);
+        if (em) out.push(em);
+      } else if (/\.(png|jpe?g|gif|webp|bmp)(\?|#|$)/i.test(url)) {
+        out.push({ type: "image", url, image: { url, proxy_url: url } });
+      } else {
+        const em = await fetchOpenGraph(url);
+        if (em) out.push(em);
+      }
+    }
+  } catch {
+  }
+  return out;
+}
+function addLinkEmbeds(channelId, message, content) {
+  try {
+    if (storage.embedsEnabled === false) return;
+    if (!/https?:\/\//i.test("" + (content || ""))) return;
+    fetchEmbeds(content).then((embeds) => {
+      if (!embeds?.length) return;
+      try {
+        FluxDispatcher.dispatch({ type: "MESSAGE_UPDATE", message: Object.assign({}, message, { embeds }), otherPluginBypass: true });
+      } catch {
+      }
+    }).catch(() => {
+    });
+  } catch {
+  }
+}
+async function dispatchFakeMessage(channelId, userId, content, timestamp, msgId, replyRef) {
+  content = applyTags(content, channelId);
+  const id = msgId || genId(timestamp || nowISO(storage));
+  try {
+    const ts = timestamp || nowISO(storage);
+    const message = {
+      id,
+      type: 0,
+      channel_id: channelId,
+      author: mkAuthor(userId),
+      content,
+      nonce: id,
+      mentions: [],
+      mention_roles: [],
+      pinned: false,
+      tts: false,
+      attachments: [],
+      embeds: [],
+      timestamp: ts,
+      edited_timestamp: null,
+      state: "SENT",
+      fake: true
+    };
+    if (replyRef?.id) {
+      message.type = 19;
+      message.message_reference = { message_id: replyRef.id, channel_id: channelId };
+      try {
+        const gid = ChannelModule?.getChannel?.(channelId)?.guild_id;
+        if (gid) message.message_reference.guild_id = gid;
+      } catch {
+      }
+      message.referenced_message = {
+        id: replyRef.id,
+        type: 0,
+        channel_id: channelId,
+        author: mkAuthor(replyRef.userId),
+        content: replyRef.content,
+        mentions: [],
+        mention_roles: [],
+        pinned: false,
+        tts: false,
+        attachments: [],
+        embeds: [],
+        timestamp: replyRef.timestamp || ts,
+        edited_timestamp: null,
+        state: "SENT",
+        fake: true
+      };
+    }
+    FluxDispatcher.dispatch({ type: "MESSAGE_CREATE", channelId, message, otherPluginBypass: true });
+    try {
+      FluxDispatcher.dispatch({ type: "MESSAGE_ACK", channelId, messageId: id, manual: true, immediate: true });
+    } catch {
+    }
+    try {
+      addLinkEmbeds(channelId, message, content);
+    } catch {
+    }
+  } catch {
+  }
+}
+function saveMessage(channelId, userId, content, msgId, timestamp, replyRef) {
+  const d = storage.savedMessages || [];
+  const rec = { id: msgId, channelId, userId, content, timestamp, createdAt: Date.now() };
+  if (replyRef) rec.replyTo = replyRef;
+  d.push(rec);
+  storage.savedMessages = d;
+  storage._lastUpdate = Date.now();
+}
+function replayChannel(channelId) {
+  (storage.savedMessages || []).filter((s) => s.channelId === channelId).forEach((s) => {
+    dispatchFakeMessage(s.channelId, s.userId, s.content, s.timestamp, s.id, s.replyTo);
+  });
+}
+function clearSaved() {
+  try {
+    const count = (storage.savedMessages || []).length;
+    storage.savedMessages = [];
+    storage._lastUpdate = Date.now();
+    showToastMsg("Cleared " + count + " saved message" + (count === 1 ? "" : "s") + ".");
+  } catch {
+    showToastMsg("Couldn't clear saved messages.");
+  }
+}
+function removeAllFakes() {
+  try {
+    const list = (storage.savedMessages || []).slice();
+    let removed = 0;
+    for (const rec of list) {
+      if (rec?.id && rec?.channelId) {
+        try {
+          FluxDispatcher.dispatch({ type: "MESSAGE_DELETE", id: rec.id, channelId: rec.channelId, otherPluginBypass: true });
+          removed++;
+        } catch {
+        }
+      }
+    }
+    storage.savedMessages = [];
+    storage._lastUpdate = Date.now();
+    showToastMsg("Removed " + removed + " spoofed message" + (removed === 1 ? "" : "s") + " and cleared saved.");
+  } catch {
+    showToastMsg("Couldn't remove spoofed messages.");
+  }
+}
+function showToastMsg(msg) {
+  try {
+    showToast(msg);
+  } catch {
+  }
+}
+function dmNameFor(id) {
+  try {
+    const u = UserStore.getUser(id);
+    if (u) return u.globalName || u.global_name || u.username || id;
+  } catch {
+  }
+  return id;
+}
+function findExistingDM(id) {
+  try {
+    const PCS = findByStoreName("PrivateChannelStore");
+    let cid = null;
+    try {
+      if (PCS?.getDMFromUserId) cid = PCS.getDMFromUserId(id);
+    } catch {
+    }
+    if (cid) {
+      const ch = ChannelStore?.getChannel?.(cid);
+      if (ch?.type === 1) return cid;
+    }
+    let ids = [];
+    try {
+      if (PCS?.getPrivateChannelIds) ids = PCS.getPrivateChannelIds() || [];
+    } catch {
+    }
+    for (const chId of ids) {
+      const ch = ChannelStore?.getChannel?.(chId);
+      if (!ch || ch.type !== 1) continue;
+      const r = ch.recipients || [];
+      if (r.length !== 1) continue;
+      const rid = typeof r[0] === "string" ? r[0] : r[0]?.id;
+      if (rid === id) return chId;
+    }
+  } catch {
+  }
+  return null;
+}
+function isDM(channelId) {
+  try {
+    return ChannelStore?.getChannel?.(channelId)?.type === 1;
+  } catch {
+    return false;
+  }
+}
+function pushMessagesScreen(channelId) {
+  try {
+    const RA = findByProps("handleTapChannel");
+    if (RA?.handleTapChannel) {
+      RA.handleTapChannel(channelId);
+      return true;
+    }
+  } catch {
+  }
+  try {
+    const RA2 = findByProps("handlePressChannel");
+    if (RA2?.handlePressChannel) {
+      RA2.handlePressChannel(channelId);
+      return true;
+    }
+  } catch {
+  }
+  try {
+    const NavRef = findByProps("getRootNavigationRef");
+    const ref = NavRef?.getRootNavigationRef?.();
+    if (ref?.navigate) {
+      for (const route of ["messages", "Messages", "Channel", "channel"]) {
+        try {
+          ref.navigate(route, { channelId });
+          return true;
+        } catch {
+        }
+      }
+    }
+  } catch {
+  }
+  return false;
+}
+function tryNavigate(channelId) {
+  if (!channelId) return false;
+  const sc = findByProps("selectChannel");
+  if (sc?.selectChannel) {
+    for (const shape of [{ guildId: null, channelId }, { guildId: "@me", channelId }, { channelId }, channelId]) {
+      try {
+        sc.selectChannel(shape);
+        pushMessagesScreen(channelId);
+        return true;
+      } catch {
+      }
+    }
+  }
+  if (pushMessagesScreen(channelId)) return true;
+  const tr = findByProps("transitionToChannel");
+  if (tr?.transitionToChannel) {
+    try {
+      tr.transitionToChannel(channelId);
+      return true;
+    } catch {
+    }
+  }
+  const oc = findByProps("openChannel");
+  if (oc?.openChannel) {
+    try {
+      oc.openChannel({ channelId });
+      return true;
+    } catch {
+    }
+  }
+  return false;
+}
+async function openDM(userId) {
+  const id = ("" + (userId || "")).trim().replace(/[^0-9]/g, "");
+  if (!id || !/^\d{17,20}$/.test(id)) {
+    showToastMsg("Invalid user ID.");
+    return null;
+  }
+  const ens = findByProps("ensurePrivateChannel");
+  let channelId = findExistingDM(id);
+  if (channelId && tryNavigate(channelId)) {
+    showToastMsg("Opening DM with " + dmNameFor(id));
+    return { channelId, userId: id };
+  }
+  if (!channelId && ens?.ensurePrivateChannel) {
+    try {
+      channelId = await ens.ensurePrivateChannel(id);
+    } catch {
+    }
+  }
+  if (channelId) {
+    if (isDM(channelId)) {
+      if (tryNavigate(channelId)) {
+        showToastMsg("Opening DM with " + dmNameFor(id));
+        return { channelId, userId: id };
+      }
+    } else {
+      const real = findExistingDM(id);
+      if (real && tryNavigate(real)) {
+        showToastMsg("Opening DM with " + dmNameFor(id));
+        return { channelId: real, userId: id };
+      }
+      showToastMsg("This build's create call makes a group, not a 1:1 DM.");
+      return null;
+    }
+  }
+  const acts = findByProps("openPrivateChannel");
+  if (acts?.openPrivateChannel) {
+    for (const shape of [id, { recipientId: id }, { userId: id }]) {
+      try {
+        acts.openPrivateChannel(shape);
+        break;
+      } catch {
+      }
+    }
+    const real = findExistingDM(id);
+    if (real && tryNavigate(real)) {
+      showToastMsg("Opening DM with " + dmNameFor(id));
+      return { channelId: real, userId: id };
+    }
+  }
+  showToastMsg("Couldn't open a DM - no working DM API found.");
+  return null;
+}
+function fillFromChat() {
+  try {
+    const ch = getCurrentChannelId();
+    if (!ch) return null;
+    let channel = ChannelModule?.getChannel?.(ch);
+    if (!channel) try {
+      channel = ChannelStore?.getChannel?.(ch);
+    } catch {
+    }
+    const rec = channel?.recipients;
+    if (rec?.length) {
+      let id = rec[0];
+      if (id && typeof id === "object") id = id.id || id.userId || id.user_id;
+      if (id) return "" + id;
+    }
+    const raw = channel?.rawRecipients;
+    if (raw?.length) {
+      const id = raw[0].id || raw[0].user_id;
+      if (id) return "" + id;
+    }
+    try {
+      const ids = findByProps("getDMUserIds")?.getDMUserIds?.(ch);
+      if (ids?.length) return "" + ids[0];
+    } catch {
+    }
+    let arr = [];
+    try {
+      const msgs = MessageStore?.getMessages?.(ch);
+      arr = msgs?.toArray ? msgs.toArray() : msgs?._array || [];
+    } catch {
+    }
+    const meId = UserStore?.getCurrentUser?.()?.id;
+    for (let i = arr.length - 1; i >= 0; i--) {
+      const au = arr[i]?.author?.id;
+      if (au && au !== meId) return "" + au;
+    }
+  } catch {
+  }
+  return null;
+}
+function randGapMs() {
+  return Math.floor(6e4 + Math.random() * 6e4);
+}
+async function runConvo() {
+  const ch = getCurrentChannelId();
+  if (!ch) {
+    showToastMsg("No channel selected.");
+    return;
+  }
+  const text = storage.conversationText || "";
+  const lines = text.split(/\r?\n/);
+  const useUTC = ukOn(storage) ? false : storage.useUTC || false;
+  const now = nowDate(storage);
+  const base = {
+    y: storage.customYear || now.getFullYear(),
+    mo: storage.customMonth || now.getMonth() + 1,
+    d: storage.customDay || now.getDate()
+  };
+  const items = [];
+  for (const line of lines) {
+    const parsed = parseLine(line);
+    if (!parsed || !parsed.content.trim()) continue;
+    let uid = parsed.uid;
+    if (/^(me|self)$/i.test(uid)) try {
+      uid = UserStore?.getCurrentUser?.()?.id;
+    } catch {
+    }
+    else if (/^(them|they|user)$/i.test(uid)) uid = (storage.userId || "").trim();
+    if (!uid) continue;
+    const explicit = parsed.time ? parseTime(parsed.time, base, useUTC) : null;
+    items.push({ uid, content: parsed.content, reply: parsed.reply, explicit: explicit || null });
+  }
+  let cursor = nowDate(storage).getTime();
+  for (const it of items) {
+    if (it.explicit) {
+      const t0 = new Date(it.explicit).getTime();
+      if (!isNaN(t0)) {
+        cursor = t0;
+        break;
+      }
+    }
+  }
+  let count = 0;
+  const built = [];
+  for (const it of items) {
+    let iso;
+    if (it.explicit) {
+      const t = new Date(it.explicit).getTime();
+      if (!isNaN(t)) {
+        cursor = t;
+        iso = new Date(t).toISOString();
+      } else iso = new Date(cursor).toISOString();
+    } else iso = new Date(cursor).toISOString();
+    cursor += randGapMs();
+    const id = genId(iso);
+    let ref = null;
+    if (it.reply) {
+      const target = it.reply.prev ? built[built.length - 1] : built[it.reply.line - 1];
+      if (target) ref = { id: target.id, userId: target.userId, content: target.content, timestamp: target.timestamp };
+    }
+    await dispatchFakeMessage(ch, it.uid, it.content, iso, id, ref);
+    saveMessage(ch, it.uid, it.content, id, iso, ref);
+    built.push({ id, userId: it.uid, content: it.content, timestamp: iso });
+    count++;
+  }
+  showToastMsg(count ? `Sent ${count} message${count === 1 ? "" : "s"}.` : "No valid lines found.");
+}
+async function runBulkSDM() {
+  const script = ("" + (storage.sdmScript || "")).trim();
+  if (!script) {
+    showToastMsg("Set a preset script in the SDM tab first.");
+    return;
+  }
+  const raw = ("" + (storage.sdmBulkList || "")).trim();
+  if (!raw) {
+    showToastMsg("Add targets to the bulk list first.");
+    return;
+  }
+  const lines = raw.split(/\r?\n/);
+  let count = 0, fails = 0;
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    const parts = trimmed.split(/\s+/);
+    const uid = parts[0];
+    const sid = parts.length > 1 ? parts.slice(1).join(" ") : null;
+    if (!uid || !/^\d{5,}$/.test(uid)) {
+      fails++;
+      continue;
+    }
+    let msg = script;
+    if (sid && /^\d{5,}$/.test(sid.trim())) msg = msg.replace(/\[server\]/gi, "[server:" + sid.trim() + "]");
+    else if (sid) msg = msg.replace(/\[server\]/gi, sid.trim());
+    try {
+      const result = await openDM(uid);
+      if (!result) {
+        fails++;
+        continue;
+      }
+      await new Promise((r) => setTimeout(r, 350));
+      const timestamp = nowISO(storage);
+      const id = genId(timestamp);
+      await dispatchFakeMessage(result.channelId, result.userId, msg, timestamp, id);
+      saveMessage(result.channelId, result.userId, msg, id, timestamp);
+      count++;
+      await new Promise((r) => setTimeout(r, 500));
+    } catch {
+      fails++;
+    }
+  }
+  showToastMsg("Bulk SDM: " + count + " sent" + (fails ? ", " + fails + " failed" : "") + ".");
+}
+var _fp;
+function fetchProfileSafe(uid) {
+  if (!uid) return;
+  try {
+    if (_fp === void 0) _fp = findByProps("fetchProfile") || null;
+  } catch {
+    _fp = null;
+  }
+  if (_fp?.fetchProfile) {
+    try {
+      const r = _fp.fetchProfile(uid);
+      r?.catch?.(() => {
+      });
+    } catch {
+    }
+  }
+}
+function prefetchSources() {
+  try {
+    const profs = storage.profiles || {};
+    const seen = {};
+    for (const k in profs) {
+      const sid = profs[k]?.sourceId;
+      if (sid && !seen[sid]) {
+        seen[sid] = true;
+        fetchProfileSafe(sid);
+      }
+    }
+  } catch {
+  }
+}
+function installPatches() {
+  const unpatches = [];
+  try {
+    const bDispatch = before("dispatch", FluxDispatcher, (s) => {
+      const c = s[0];
+      if (c.type === "MESSAGE_UPDATE" && c.message?.fake && !c.otherPluginBypass && !isLocalEditing) return [];
+    });
+    unpatches.push(bDispatch);
+  } catch {
+  }
+  try {
+    const AV = findByProps("getUserAvatarURL");
+    if (AV?.getUserAvatarURL)
+      unpatches.push(after("getUserAvatarURL", AV, (a, ret) => {
+        try {
+          const id = firstProfiledId(a);
+          if (id) {
+            const o = resolveAvatar(id);
+            if (o) return o;
+          }
+        } catch {
+        }
+        return ret;
+      }));
+  } catch {
+  }
+  try {
+    const AV2 = findByProps("getUserAvatarSource");
+    if (AV2?.getUserAvatarSource)
+      unpatches.push(after("getUserAvatarSource", AV2, (a, ret) => {
+        try {
+          const id = firstProfiledId(a);
+          if (id) return mirrorSource(id, ret);
+        } catch {
+        }
+        return ret;
+      }));
+  } catch {
+  }
+  try {
+    const GAV = findByProps("getGuildMemberAvatarURLSimple");
+    if (GAV?.getGuildMemberAvatarURLSimple)
+      unpatches.push(after("getGuildMemberAvatarURLSimple", GAV, (a, ret) => {
+        try {
+          const id = firstProfiledId(a);
+          if (id) {
+            const o = resolveAvatar(id);
+            if (o) return o;
+          }
+        } catch {
+        }
+        return ret;
+      }));
+  } catch {
+  }
+  try {
+    const cu = UserStore?.getCurrentUser?.();
+    const proto = cu?.constructor?.prototype;
+    if (proto?.getAvatarURL)
+      unpatches.push(after("getAvatarURL", proto, function(_a, ret) {
+        try {
+          const id = this?.id;
+          if (id && (storage.profiles || {})[id]) {
+            const o = resolveAvatar(id);
+            if (o) return o;
+          }
+        } catch {
+        }
+        return ret;
+      }));
+  } catch {
+  }
+  try {
+    if (UserStore?.getUser)
+      unpatches.push(after("getUser", UserStore, (a, ret) => {
+        try {
+          const profs = storage.profiles;
+          const id = a?.[0];
+          if (profs && id && profs[id] && ret) {
+            const dn = resolveName(id);
+            const un = resolveUsername(id);
+            if (un && ret.username !== un) forceSet(ret, "username", un);
+            if (dn && ret.globalName !== dn) forceSet(ret, "globalName", dn);
+            forceNull(ret, "avatarDecorationData");
+            forceNull(ret, "avatarDecoration");
+            forceNull(ret, "primaryGuild");
+            forceNull(ret, "clan");
+            forceSet(ret, "premiumType", 0);
+            forceNull(ret, "premiumSince");
+            forceNull(ret, "premiumGuildSince");
+            const ca0 = resolveCreated(id);
+            if (ca0) forceSet(ret, "createdAt", ca0);
+            if (profs[id].sourceId) {
+              const ac = resolveAccent(id);
+              if (ac != null) forceSet(ret, "accentColor", ac);
+            }
+          }
+        } catch {
+        }
+        return ret;
+      }));
+  } catch {
+  }
+  try {
+    const GMS = findByStoreName("GuildMemberStore");
+    if (GMS?.getNick)
+      unpatches.push(after("getNick", GMS, (a, ret) => {
+        try {
+          const profs = storage.profiles;
+          if (profs && a) {
+            const id = profs[a[1]] ? a[1] : profs[a[0]] ? a[0] : null;
+            if (id) {
+              const nm = resolveName(id);
+              if (nm) return nm;
+            }
+          }
+        } catch {
+        }
+        return ret;
+      }));
+    if (GMS?.getMember)
+      unpatches.push(after("getMember", GMS, (a, ret) => {
+        try {
+          const profs = storage.profiles;
+          if (profs && a && ret) {
+            const id = profs[a[1]] ? a[1] : profs[a[0]] ? a[0] : null;
+            if (id) {
+              const nm = resolveName(id);
+              if (nm) {
+                forceSet(ret, "nick", nm);
+                if ("nickname" in ret) forceSet(ret, "nickname", nm);
+              }
+              const ja = resolveJoined(id);
+              if (ja) {
+                forceSet(ret, "joinedAt", ja);
+                if ("joinedAtTimestamp" in ret) forceSet(ret, "joinedAtTimestamp", new Date(ja).getTime());
+              }
+            }
+          }
+        } catch {
+        }
+        return ret;
+      }));
+  } catch {
+  }
+  try {
+    const NK = findByProps("getNickname");
+    if (NK?.getNickname)
+      unpatches.push(after("getNickname", NK, (a, ret) => {
+        try {
+          const profs = storage.profiles;
+          if (profs && a) {
+            for (const arg of a) {
+              const id = extractId(arg);
+              if (id && profs[id]) {
+                const nm = resolveName(id);
+                if (nm) return nm;
+              }
+            }
+          }
+        } catch {
+        }
+        return ret;
+      }));
+  } catch {
+  }
+  try {
+    const NM = findByProps("getName");
+    if (NM?.getName)
+      unpatches.push(after("getName", NM, (a, ret) => {
+        try {
+          const profs = storage.profiles;
+          if (profs && a) {
+            for (const arg of a) {
+              const id = extractId(arg);
+              if (id && profs[id]) {
+                const nm = resolveName(id);
+                if (nm) return nm;
+              }
+            }
+          }
+        } catch {
+        }
+        return ret;
+      }));
+  } catch {
+  }
+  try {
+    const BU = findByProps("getUserBannerURL");
+    if (BU?.getUserBannerURL)
+      unpatches.push(after("getUserBannerURL", BU, (a, ret) => {
+        try {
+          const id = firstProfiledId(a);
+          const prof = id && (storage.profiles || {})[id];
+          if (prof?.sourceId) return resolveBanner(id);
+        } catch {
+        }
+        return ret;
+      }));
+  } catch {
+  }
+  try {
+    const cu = UserStore?.getCurrentUser?.();
+    const proto = cu?.constructor?.prototype;
+    if (proto?.getBannerURL)
+      unpatches.push(after("getBannerURL", proto, function(_a, ret) {
+        try {
+          const id = this?.id;
+          const prof = id && (storage.profiles || {})[id];
+          if (prof?.sourceId) return resolveBanner(id);
+        } catch {
+        }
+        return ret;
+      }));
+  } catch {
+  }
+  try {
+    const DU = findByProps("getAvatarDecorationURL");
+    if (DU?.getAvatarDecorationURL)
+      unpatches.push(after("getAvatarDecorationURL", DU, (a, ret) => {
+        try {
+          const id = extractId(a?.[0]);
+          if (id && (storage.profiles || {})[id]) return null;
+        } catch {
+        }
+        return ret;
+      }));
+  } catch {
+  }
+  try {
+    const UPS = findByStoreName("UserProfileStore");
+    if (UPS?.getUserProfile)
+      unpatches.push(after("getUserProfile", UPS, (a, ret) => {
+        try {
+          const profs = storage.profiles;
+          const id = a?.[0];
+          if (profs && id && profs[id] && ret) {
+            const prof = profs[id];
+            forceNull(ret, "avatarDecoration");
+            forceNull(ret, "avatarDecorationData");
+            forceNull(ret, "profileEffectId");
+            forceNull(ret, "primaryGuild");
+            forceNull(ret, "clan");
+            forceSet(ret, "badges", []);
+            forceSet(ret, "premiumType", 0);
+            forceNull(ret, "premiumSince");
+            forceNull(ret, "premiumGuildSince");
+            if (prof.sourceId && !resolving.has("p" + id)) {
+              resolving.add("p" + id);
+              try {
+                const sp = UPS.getUserProfile(prof.sourceId);
+                if (sp) {
+                  if (sp.bio != null) forceSet(ret, "bio", sp.bio);
+                  if (sp.pronouns != null) forceSet(ret, "pronouns", sp.pronouns);
+                  if (sp.accentColor != null) forceSet(ret, "accentColor", sp.accentColor);
+                  if (sp.themeColors != null) forceSet(ret, "themeColors", sp.themeColors);
+                }
+                let sbh = null;
+                try {
+                  const src2 = UserStore.getUser(prof.sourceId);
+                  sbh = src2?.banner || sp?.banner || null;
+                } catch {
+                }
+                forceSet(ret, "banner", sbh);
+              } catch {
+              } finally {
+                resolving.delete("p" + id);
+              }
+            }
+          }
+        } catch {
+        }
+        return ret;
+      }));
+  } catch {
+  }
+  try {
+    const BG = findByProps("getBadges");
+    if (BG?.getBadges)
+      unpatches.push(after("getBadges", BG, (a, ret) => {
+        try {
+          const id = firstProfiledId(a);
+          if (id) return [];
+        } catch {
+        }
+        return ret;
+      }));
+  } catch {
+  }
+  try {
+    const BG2 = findByProps("getUserProfileBadges");
+    if (BG2?.getUserProfileBadges)
+      unpatches.push(after("getUserProfileBadges", BG2, (a, ret) => {
+        try {
+          const id = firstProfiledId(a);
+          if (id) return [];
+        } catch {
+        }
+        return ret;
+      }));
+  } catch {
+  }
+  try {
+    if (UserStore?.getCurrentUser)
+      unpatches.push(after("getCurrentUser", UserStore, (_a, ret) => {
+        try {
+          if (selfActive && selfId && ret) return spoofCU(ret, selfId);
+        } catch {
+        }
+        return ret;
+      }));
+  } catch {
+  }
+  try {
+    const ICU = findByProps("isCurrentUser");
+    if (ICU?.isCurrentUser)
+      unpatches.push(after("isCurrentUser", ICU, (a, ret) => {
+        try {
+          const profs = storage.profiles;
+          const id = extractId(a?.[0]) || a?.[0];
+          if (profs && id && profs[id]?.self) return true;
+        } catch {
+        }
+        return ret;
+      }));
+    const IM = findByProps("isMe");
+    if (IM?.isMe)
+      unpatches.push(after("isMe", IM, (a, ret) => {
+        try {
+          const profs = storage.profiles;
+          const id = extractId(a?.[0]) || a?.[0];
+          if (profs && id && profs[id]?.self) return true;
+        } catch {
+        }
+        return ret;
+      }));
+  } catch {
+  }
+  try {
+    if (ActionSheetModule?.hideActionSheet)
+      unpatches.push(after("hideActionSheet", ActionSheetModule, () => {
+        try {
+          if (selfActive && Date.now() - selfAt > 400) setSelfSpoof(null, false);
+        } catch {
+        }
+      }));
+  } catch {
+  }
+  try {
+    if (ActionSheetModule?.openLazy) {
+      unpatches.push(before("openLazy", ActionSheetModule, (s) => {
+        try {
+          const [sheet, compKey, u] = s;
+          const profs = storage.profiles;
+          if (profs && u) {
+            let fid = null;
+            const cands = [u.userId, u.user?.id, u.user?.userId];
+            for (const cv of cands) {
+              if (cv && profs[cv]?.self) {
+                fid = cv;
+                break;
+              }
+            }
+            if (!fid) {
+              try {
+                for (const key in u) {
+                  const val = u[key];
+                  if (typeof val === "string" && profs[val]?.self) {
+                    fid = val;
+                    break;
+                  }
+                  if (val && typeof val === "object") {
+                    const sub = val.id || val.userId;
+                    if (sub && profs[sub]?.self) {
+                      fid = sub;
+                      break;
+                    }
+                  }
+                }
+              } catch {
+              }
+            }
+            if (fid) {
+              setSelfSpoof(fid, true);
+              setTimeout(() => setSelfSpoof(null, false), 8e3);
+            }
+          }
+          const msg = u?.message;
+          if (compKey === "MessageLongPressActionSheet" && msg) {
+            sheet.then((d) => {
+              const ip = after("default", d, (_g, h) => {
+                setTimeout(ip, 0);
+                const M = findInReactTree(h, (m) => m?.[0]?.type?.name === "ActionSheetRow");
+                if (!M) return;
+                let o = null;
+                try {
+                  o = UserStore?.getCurrentUser?.();
+                } catch {
+                }
+                const a = MessageStore?.getMessage?.(msg.channel_id, msg.id) ?? msg;
+                if (a.author.id === o?.id || M.some((m) => m?.props?.label === "Edit Locally")) return;
+                const ASR = ActionSheetRow?.ActionSheetRow || M[0]?.type;
+                if (!ASR) return;
+                const p = Math.max(M.findIndex((m) => m.props?.message?.toString?.()?.includes?.("MARK_UNREAD") || m.props?.label === "Mark Unread"), 0);
+                M.splice(
+                  p,
+                  0,
+                  React.createElement(ASR, {
+                    label: "Edit Locally",
+                    icon: ASR.Icon ? React.createElement(ASR.Icon, { source: getAssetIDByName("ic_edit_24px") }) : void 0,
+                    onPress: () => {
+                      setLocalEditing(true);
+                      if (!originalMessages.has(a.id)) originalMessages.set(a.id, JSON.parse(JSON.stringify(a)));
+                      try {
+                        ActionSheetModule.hideActionSheet();
+                      } catch {
+                      }
+                      try {
+                        EditModule.startEditMessage(a.channel_id, a.id, a.content);
+                      } catch {
+                      }
+                    }
+                  }),
+                  React.createElement(ASR, {
+                    label: "Use as Fake User",
+                    icon: ASR.Icon ? React.createElement(ASR.Icon, { source: getAssetIDByName("ic_members") }) : void 0,
+                    onPress: () => {
+                      try {
+                        storage.userId = a.author.id;
+                        ActionSheetModule.hideActionSheet();
+                        showToastMsg("Fake user set: " + (a.author.username || a.author.id));
+                      } catch {
+                      }
+                    }
+                  })
+                );
+              });
+            });
+          }
+        } catch {
+        }
+      }));
+    }
+  } catch {
+  }
+  try {
+    if (EditModule?.editMessage) {
+      unpatches.push(before("editMessage", EditModule, (s) => {
+        const [_c, u, t] = s;
+        if (isLocalEditing) {
+          const d = originalMessages.get(u);
+          if (!d) return;
+          const i = storage.savedMessages || [];
+          const g = i.find((h) => h.id === u);
+          if (g) {
+            g.content = t.content;
+            storage.savedMessages = i;
+          }
+          FluxDispatcher.dispatch({ type: "MESSAGE_UPDATE", message: { ...d, content: t.content, edited_timestamp: null }, otherPluginBypass: true });
+          return [];
+        }
+      }));
+    }
+  } catch {
+  }
+  try {
+    if (EditModule?.endEditMessage) {
+      unpatches.push(after("endEditMessage", EditModule, () => {
+        if (isLocalEditing) setLocalEditing(false);
+      }));
+    }
+  } catch {
+  }
+  return unpatches;
+}
+
+// src/commands.ts
+function argsToMap(args) {
+  return Array.isArray(args) ? Object.fromEntries(args.map((a) => [a?.name, a?.value])) : args ?? {};
+}
+function registerAllCommands() {
+  const unregister = [];
+  try {
+    unregister.push(registerCommand({
+      name: "spoofer",
+      displayName: "spoofer",
+      description: "Open the Local Message Spoofer settings.",
+      displayDescription: "Open the Local Message Spoofer settings.",
+      type: 1,
+      inputType: 1,
+      options: [],
+      execute: () => {
+        showToastMsg("Open Spoofer from the Plugins list (settings).");
+      }
+    }));
+  } catch {
+  }
+  try {
+    unregister.push(registerCommand({
+      name: "filluid",
+      displayName: "filluid",
+      description: "Fill the spoofer User ID from this chat, or pass a specific ID.",
+      displayDescription: "Fill the spoofer User ID from this chat, or pass a specific ID.",
+      type: 1,
+      inputType: 1,
+      options: [{
+        name: "userid",
+        displayName: "userid",
+        description: "Optional: a specific user ID to set.",
+        displayDescription: "Optional: a specific user ID to set.",
+        type: 3,
+        required: false
+      }],
+      execute: (args) => {
+        try {
+          const map = argsToMap(args);
+          let id = ("" + (map.userid ?? "")).trim();
+          if (!id) id = fillFromChat() || "";
+          if (id) {
+            storage.userId = id;
+            showToastMsg("User ID set: " + id);
+          } else showToastMsg("No user found here. Try: /filluid userid:123456789");
+        } catch {
+          showToastMsg("Couldn't set the User ID.");
+        }
+      }
+    }));
+  } catch {
+  }
+  try {
+    unregister.push(registerCommand({
+      name: "clearfakes",
+      displayName: "clearfakes",
+      description: "Clear all saved fake messages (stops them replaying).",
+      displayDescription: "Clear all saved fake messages (stops them replaying).",
+      type: 1,
+      inputType: 1,
+      options: [],
+      execute: () => {
+        clearSaved();
+      }
+    }));
+  } catch {
+  }
+  try {
+    unregister.push(registerCommand({
+      name: "dm",
+      displayName: "dm",
+      description: "Open a DM with a user by ID, mention, or profile link.",
+      displayDescription: "Open a DM with a user by ID, mention, or profile link.",
+      type: 1,
+      inputType: 1,
+      options: [{
+        name: "user",
+        displayName: "user",
+        description: "User ID, mention, or profile URL.",
+        displayDescription: "User ID, mention, or profile URL.",
+        type: 3,
+        required: true
+      }],
+      execute: (args) => {
+        try {
+          const map = argsToMap(args);
+          openDM("" + (map.user ?? ""));
+        } catch {
+          showToastMsg("Couldn't run /dm.");
+        }
+      }
+    }));
+  } catch {
+  }
+  try {
+    unregister.push(registerCommand({
+      name: "sdm",
+      displayName: "sdm",
+      description: "Open a DM and send the preset script (or a custom message).",
+      displayDescription: "Open a DM and send the preset script (or a custom message).",
+      type: 1,
+      inputType: 1,
+      options: [
+        { name: "user", displayName: "user", description: "User ID, mention, or profile URL.", displayDescription: "User ID, mention, or profile URL.", type: 3, required: true },
+        { name: "message", displayName: "message", description: "Override message (leave blank to use preset script).", displayDescription: "Override message (leave blank to use preset script).", type: 3, required: false }
+      ],
+      execute: async (args) => {
+        try {
+          const map = argsToMap(args);
+          const result = await openDM("" + (map.user ?? ""));
+          if (!result) {
+            showToastMsg("Failed to open DM or user not found.");
+            return;
+          }
+          let content = ("" + (map.message ?? "")).trim();
+          if (!content) content = ("" + (storage.sdmScript || "")).trim();
+          if (!content) {
+            showToastMsg("No message and no preset script set. Add one in the spoofer SDM tab.");
+            return;
+          }
+          await new Promise((r) => setTimeout(r, 250));
+          const timestamp = nowISO(storage);
+          const id = genId(timestamp);
+          await dispatchFakeMessage(result.channelId, result.userId, content, timestamp, id);
+          saveMessage(result.channelId, result.userId, content, id, timestamp);
+          showToastMsg("Spoofed message sent in DM.");
+        } catch (e) {
+          showToastMsg("Error: " + (e?.message || "unknown"));
+        }
+      }
+    }));
+  } catch {
+  }
+  try {
+    unregister.push(registerCommand({
+      name: "sdm-bulk",
+      displayName: "sdm-bulk",
+      description: "Send the preset script to every target in the bulk list.",
+      displayDescription: "Send the preset script to every target in the bulk list.",
+      type: 1,
+      inputType: 1,
+      options: [],
+      execute: async () => {
+        await runBulkSDM();
+      }
+    }));
+  } catch {
+  }
+  return unregister;
+}
+
+// src/settings.tsx
+var UserStore2 = findByStoreNameLazy("UserStore");
+var GuildStore2 = findByStoreNameLazy("GuildStore");
+var ChannelModule2 = findByPropsLazy("getChannel", "getChannelId");
+function buildTimestampISO() {
+  const _nd = nowDate(storage);
+  if (storage.useUTC && !ukOn(storage)) {
+    return new Date(Date.UTC(
+      storage.customYear || _nd.getFullYear(),
+      (storage.customMonth || _nd.getMonth() + 1) - 1,
+      storage.customDay || _nd.getDate(),
+      storage.customHour !== void 0 ? storage.customHour : _nd.getHours(),
+      storage.customMinute !== void 0 ? storage.customMinute : _nd.getMinutes(),
+      0,
+      0
+    )).toISOString();
+  }
+  return new Date(
+    storage.customYear || _nd.getFullYear(),
+    (storage.customMonth || _nd.getMonth() + 1) - 1,
+    storage.customDay || _nd.getDate(),
+    storage.customHour !== void 0 ? storage.customHour : _nd.getHours(),
+    storage.customMinute !== void 0 ? storage.customMinute : _nd.getMinutes(),
+    0,
+    0
+  ).toISOString();
+}
+function SpooferSettings() {
+  const [tick, setTick] = React.useState(0);
+  const [tab, setTab] = React.useState(0);
+  const _scrollRef = React.useRef(null);
+  const RN = ReactNative;
+  const _View = RN?.View;
+  const _SV = RN?.ScrollView;
+  const _Touch = RN?.TouchableOpacity || RN?.Pressable;
+  const _Text = RN?.Text;
+  let _width = 380;
+  try {
+    if (RN?.Dimensions?.get) _width = RN.Dimensions.get("window").width || 380;
+  } catch {
+  }
+  const _canSwipe = !!(_View && _SV && _Touch && _Text);
+  const r = storage.userId || "";
+  const s = storage.message || "";
+  let c = null;
+  try {
+    if (r) c = UserStore2?.getUser?.(r);
+  } catch {
+  }
+  const u = (storage.savedMessages || []).length;
+  const t = nowDate(storage);
+  const d = storage.customYear || t.getFullYear();
+  const i = storage.customMonth || t.getMonth() + 1;
+  const g = storage.customDay || t.getDate();
+  const h = storage.customHour !== void 0 ? storage.customHour : t.getHours();
+  const M = storage.customMinute !== void 0 ? storage.customMinute : t.getMinutes();
+  const bump = () => setTick((k) => k + 1);
+  const resolveServerDisplay = () => {
+    try {
+      let id = ("" + (storage.serverTagId || "")).trim();
+      if (!id) {
+        const ch = ChannelModule2?.getChannel?.(getCurrentChannelId());
+        id = ch?.guild_id;
+      }
+      if (id) {
+        const g2 = GuildStore2?.getGuild?.(id);
+        if (g2?.name) return g2.name;
+      }
+    } catch {
+    }
+    return "(no match - join that server or recheck the ID)";
+  };
+  async function sendFakeMessage() {
+    const o = getCurrentChannelId();
+    const a = (storage.message || "").trim();
+    if (!a || !o) {
+      showToastMsg("Enter a message and open a channel first.");
+      return;
+    }
+    let p = (storage.userId || "").trim();
+    try {
+      if (!p) p = UserStore2?.getCurrentUser?.()?.id || "";
+    } catch {
+    }
+    if (!p) return;
+    const C = buildTimestampISO();
+    const m = genId(C);
+    await dispatchFakeMessage(o, p, a, C, m);
+    saveMessage(o, p, a, m, C);
+    showToastMsg("Fake message sent.");
+  }
+  if (!Forms?.FormSection || !Forms?.FormInput || !Forms?.FormRow) {
+    return React.createElement("text", {}, "Local Message Spoofer loaded but UI components unavailable.");
+  }
+  const messageTab = React.createElement(
+    Forms.FormSection,
+    { title: "Fake Message" },
+    React.createElement(Forms.FormInput, { key: "uid" + tick, title: "User ID (Optional)", placeholder: "Leave empty to use current user", value: r, onChange: (o) => {
+      storage.userId = o || "";
+    }, helperText: c ? `User: ${c.username} - use "them" in the builder` : r ? 'User not found (still usable as "them")' : "Will use your account" }),
+    React.createElement(Forms.FormRow, { label: "Fill from current chat", subLabel: "Grab the other person in this DM (or the last sender in this channel).", leading: Forms.FormRow.Icon ? React.createElement(Forms.FormRow.Icon, { source: getAssetIDByName("ic_members") }) : void 0, onPress: () => {
+      const id = fillFromChat();
+      if (id) {
+        storage.userId = id;
+        bump();
+        showToastMsg("Filled User ID: " + id);
+      } else showToastMsg("Couldn't find a user here.");
+    } }),
+    React.createElement(Forms.FormInput, { title: "Message", placeholder: "Enter message content", value: s, onChange: (o) => {
+      storage.message = o || "";
+    }, multiline: true }),
+    React.createElement(Forms.FormInput, { title: "Server ID for [server] tag (optional)", placeholder: "Paste a server ID; [server] becomes its name", value: storage.serverTagId || "", onChange: (o) => {
+      storage.serverTagId = o || "";
+      bump();
+    } }),
+    React.createElement(Forms.FormRow, { label: "[server] = " + resolveServerDisplay(), subLabel: "Type [server] in your message and it's swapped for the name when sent. Use [server:123] to name a specific server inline." }),
+    React.createElement(Forms.FormRow, { label: "Use the server I'm in now", subLabel: "One tap - fills the box above with your current server.", onPress: () => {
+      const ch = ChannelModule2?.getChannel?.(getCurrentChannelId());
+      const gid = ch?.guild_id;
+      if (!gid) {
+        showToastMsg("You're not in a server right now.");
+        return;
+      }
+      storage.serverTagId = gid;
+      const g2 = GuildStore2?.getGuild?.(gid);
+      showToastMsg('Set to "' + (g2?.name || gid) + '".');
+      bump();
+    } }),
+    React.createElement(Forms.FormRow, { label: storage.serverPickerOpen ? "Hide server list" : "Pick from my servers", subLabel: "Choose a server by name - no ID needed.", onPress: () => {
+      storage.serverPickerOpen = !storage.serverPickerOpen;
+      bump();
+    } }),
+    storage.serverPickerOpen ? buildServerPicker(bump) : null,
+    React.createElement(Forms.FormRow, { label: "Link Previews", subLabel: "Show embeds for links in fake messages (YouTube, websites, images).", trailing: Forms.FormSwitch ? React.createElement(Forms.FormSwitch, { value: storage.embedsEnabled !== false, onValueChange: (o) => {
+      storage.embedsEnabled = o;
+    } }) : void 0 }),
+    React.createElement(Forms.FormRow, { label: "Send Fake Message", subLabel: "Sends using the current timestamp settings.", leading: Forms.FormRow.Icon ? React.createElement(Forms.FormRow.Icon, { source: getAssetIDByName("ic_send") }) : void 0, onPress: sendFakeMessage })
+  );
+  const timeTab = React.createElement(
+    Forms.FormSection,
+    { title: "Custom Timestamp" },
+    React.createElement(Forms.FormRow, { label: "UK time (GMT/BST)" + (ukOn(storage) ? " - ON" : " - off"), subLabel: "Automatic timestamps use UK time. Handles BST/GMT automatically.", trailing: Forms.FormSwitch ? React.createElement(Forms.FormSwitch, { value: ukOn(storage), onValueChange: (o) => {
+      storage.ukTime = o;
+      bump();
+    } }) : void 0 }),
+    React.createElement(Forms.FormRow, { label: ukOn(storage) ? "UTC mode (ignored while UK is on)" : storage.useUTC ? "Using UTC Time" : "Using Local Time", subLabel: ukOn(storage) ? "Turn off UK time above to use this." : storage.useUTC ? "Time will be the same for everyone" : "Time will adjust to viewer's timezone", trailing: Forms.FormSwitch ? React.createElement(Forms.FormSwitch, { value: storage.useUTC || false, onValueChange: (o) => {
+      storage.useUTC = o;
+      bump();
+    } }) : void 0 }),
+    React.createElement(Forms.FormInput, { title: "Year", placeholder: "YYYY", value: String(d), onChange: (o) => {
+      const a = parseInt(o);
+      storage.customYear = isNaN(a) ? t.getFullYear() : a;
+    }, keyboardType: "number-pad" }),
+    React.createElement(Forms.FormInput, { title: "Month", placeholder: "1-12", value: String(i), onChange: (o) => {
+      const a = parseInt(o);
+      storage.customMonth = isNaN(a) ? t.getMonth() + 1 : Math.min(Math.max(a, 1), 12);
+    }, keyboardType: "number-pad" }),
+    React.createElement(Forms.FormInput, { title: "Day", placeholder: "1-31", value: String(g), onChange: (o) => {
+      const a = parseInt(o);
+      storage.customDay = isNaN(a) ? t.getDate() : Math.min(Math.max(a, 1), 31);
+    }, keyboardType: "number-pad" }),
+    React.createElement(Forms.FormInput, { title: "Hour", placeholder: "0-23", value: String(h), onChange: (o) => {
+      const a = parseInt(o);
+      storage.customHour = isNaN(a) ? t.getHours() : Math.min(Math.max(a, 0), 23);
+    }, keyboardType: "number-pad" }),
+    React.createElement(Forms.FormInput, { title: "Minute", placeholder: "0-59", value: String(M), onChange: (o) => {
+      const a = parseInt(o);
+      storage.customMinute = isNaN(a) ? t.getMinutes() : Math.min(Math.max(a, 0), 59);
+    }, keyboardType: "number-pad" }),
+    React.createElement(Forms.FormRow, { label: "Send Fake Message", subLabel: `${u} messages saved | Timestamp: ${d}-${String(i).padStart(2, "0")}-${String(g).padStart(2, "0")} ${String(h).padStart(2, "0")}:${String(M).padStart(2, "0")}`, onPress: sendFakeMessage })
+  );
+  const convoTab = React.createElement(
+    Forms.FormSection,
+    { title: "Conversation Builder" },
+    React.createElement(Forms.FormInput, { title: "Conversation", placeholder: "One line each:\nuserId [time] [^reply] - message\n\nme = you | them = the User ID above\n^N = reply to line N | ^ = reply to previous\n\nExample:\nme [9pm] - hey\nthem [9:01pm] ^1 - hi back\nme ^ - lol", value: storage.conversationText || "", onChange: (o) => {
+      storage.conversationText = o || "";
+    }, multiline: true }),
+    React.createElement(Forms.FormRow, { label: "Build Conversation", subLabel: "'me' = you, 'them' = the User ID above. Reply with ^N or ^ (previous).", onPress: async () => {
+      await runConvo();
+    } }),
+    React.createElement(Forms.FormInput, { title: "Save this conversation as (optional)", placeholder: "A name to find it later", value: storage.convoSaveName || "", onChange: (o) => {
+      storage.convoSaveName = o || "";
+    } }),
+    React.createElement(Forms.FormRow, { label: "Save conversation", subLabel: "Saves the text above on-device to reload later.", onPress: () => {
+      const txt = storage.conversationText || "";
+      if (!txt.trim()) {
+        showToastMsg("Nothing to save.");
+        return;
+      }
+      const arr = (storage.savedConvos || []).slice();
+      const nm = ("" + (storage.convoSaveName || "")).trim() || "Saved " + (arr.length + 1);
+      arr.push({ name: nm, text: txt });
+      storage.savedConvos = arr;
+      storage.convoSaveName = "";
+      showToastMsg('Saved "' + nm + '".');
+      bump();
+    } }),
+    (storage.savedConvos || []).length ? React.createElement(Forms.FormRow, { label: "Clear saved conversations", subLabel: (storage.savedConvos || []).length + " saved. Removes them all.", onPress: () => {
+      storage.savedConvos = [];
+      showToastMsg("Cleared saved conversations.");
+      bump();
+    } }) : null,
+    ...(storage.savedConvos || []).map((sc, idx) => React.createElement(Forms.FormRow, { key: "sc" + idx, label: sc.name, subLabel: "Tap to load this into the builder.", onPress: () => {
+      storage.conversationText = sc.text || "";
+      showToastMsg('Loaded "' + sc.name + '".');
+      bump();
+    } }))
+  );
+  const sdmTab = React.createElement(
+    React.Fragment,
+    {},
+    React.createElement(
+      Forms.FormSection,
+      { title: "SDM Preset Script" },
+      React.createElement(Forms.FormRow, { label: "How it works", subLabel: "Write a message template below. When you run /sdm (userid) without a message, this script is sent instead. Use [server] and any custom keywords you define." }),
+      React.createElement(Forms.FormInput, { key: "sdmscript" + tick, title: "Preset Script", placeholder: "e.g. Hey! I saw you in [server], wanted to reach out about [topic]...", value: storage.sdmScript || "", onChange: (o) => {
+        storage.sdmScript = o || "";
+      }, multiline: true }),
+      React.createElement(Forms.FormRow, { label: "Preview", subLabel: (() => {
+        const raw = storage.sdmScript || "";
+        if (!raw.trim()) return "(no script set)";
+        const resolved = applyTags(raw, getCurrentChannelId());
+        return resolved.length > 200 ? resolved.slice(0, 200) + "..." : resolved;
+      })() }),
+      React.createElement(Forms.FormRow, { label: "Custom Keywords", subLabel: (storage.sdmKeywords || []).length ? (storage.sdmKeywords || []).length + " keyword(s) defined. Use [keyword] in your script." : "No custom keywords yet. Add one below." }),
+      ...(storage.sdmKeywords || []).map((kw, idx) => React.createElement(Forms.FormRow, { key: "kw" + idx, label: "[" + kw.key + "] = " + kw.value, subLabel: "Tap to remove this keyword.", leading: Forms.FormRow.Icon ? React.createElement(Forms.FormRow.Icon, { source: getAssetIDByName("ic_trash_24px") }) : void 0, onPress: () => {
+        const arr = (storage.sdmKeywords || []).slice();
+        arr.splice(idx, 1);
+        storage.sdmKeywords = arr;
+        showToastMsg("Removed [" + kw.key + "].");
+        bump();
+      } })),
+      React.createElement(Forms.FormInput, { key: "newkwname" + tick, title: "New keyword name", placeholder: "e.g. topic, greeting, invite", value: storage.newKeywordName || "", onChange: (o) => {
+        storage.newKeywordName = o || "";
+      } }),
+      React.createElement(Forms.FormInput, { key: "newkwval" + tick, title: "New keyword value", placeholder: "What [keyword] gets replaced with", value: storage.newKeywordValue || "", onChange: (o) => {
+        storage.newKeywordValue = o || "";
+      } }),
+      React.createElement(Forms.FormRow, { label: "Add Keyword", leading: Forms.FormRow.Icon ? React.createElement(Forms.FormRow.Icon, { source: getAssetIDByName("ic_add_24px") || getAssetIDByName("ic_add") }) : void 0, onPress: () => {
+        const name = ("" + (storage.newKeywordName || "")).trim().toLowerCase().replace(/[[\]]/g, "");
+        const val = ("" + (storage.newKeywordValue || "")).trim();
+        if (!name) {
+          showToastMsg("Enter a keyword name first.");
+          return;
+        }
+        if (!val) {
+          showToastMsg("Enter a value for [" + name + "].");
+          return;
+        }
+        if (name === "server") {
+          showToastMsg("Use the Server ID field on the Message tab for [server].");
+          return;
+        }
+        const arr = (storage.sdmKeywords || []).slice();
+        const existing = arr.findIndex((kw) => kw.key === name);
+        if (existing !== -1) arr[existing] = { key: name, value: val };
+        else arr.push({ key: name, value: val });
+        storage.sdmKeywords = arr;
+        storage.newKeywordName = "";
+        storage.newKeywordValue = "";
+        showToastMsg("Added [" + name + "] = " + val);
+        bump();
+      } }),
+      React.createElement(Forms.FormRow, { label: "Clear All Keywords", subLabel: "Remove every custom keyword.", leading: Forms.FormRow.Icon ? React.createElement(Forms.FormRow.Icon, { source: getAssetIDByName("ic_trash_24px") }) : void 0, onPress: () => {
+        storage.sdmKeywords = [];
+        showToastMsg("Cleared all custom keywords.");
+        bump();
+      } })
+    ),
+    React.createElement(
+      Forms.FormSection,
+      { title: "Bulk SDM" },
+      React.createElement(Forms.FormRow, { label: "How it works", subLabel: "One target per line: userId serverId. Each gets the preset script with [server] resolved to their specific server. Run with the button below or /sdm-bulk." }),
+      React.createElement(Forms.FormInput, { key: "sdmbulk" + tick, title: "Bulk Target List", placeholder: "userId serverId\nuserId serverId\n\ne.g.\n123456789 987654321\n111222333 444555666", value: storage.sdmBulkList || "", onChange: (o) => {
+        storage.sdmBulkList = o || "";
+      }, multiline: true }),
+      React.createElement(Forms.FormRow, { label: (() => {
+        const raw = ("" + (storage.sdmBulkList || "")).trim();
+        if (!raw) return "0 targets";
+        const ct = raw.split(/\r?\n/).filter((l) => l.trim() && /^\d{5,}/.test(l.trim())).length;
+        return ct + " target" + (ct === 1 ? "" : "s") + " in list";
+      })(), subLabel: "Each line should be: userId serverId (server ID is optional)." }),
+      React.createElement(Forms.FormRow, { label: "Run Bulk SDM", subLabel: "Opens a DM with each target and sends the preset script.", leading: Forms.FormRow.Icon ? React.createElement(Forms.FormRow.Icon, { source: getAssetIDByName("ic_send") }) : void 0, onPress: async () => {
+        await runBulkSDM();
+        bump();
+      } }),
+      React.createElement(Forms.FormRow, { label: "Clear Bulk List", leading: Forms.FormRow.Icon ? React.createElement(Forms.FormRow.Icon, { source: getAssetIDByName("ic_trash_24px") }) : void 0, onPress: () => {
+        storage.sdmBulkList = "";
+        showToastMsg("Cleared bulk list.");
+        bump();
+      } })
+    )
+  );
+  const savedTab = React.createElement(
+    Forms.FormSection,
+    { title: "Saved Messages" },
+    React.createElement(Forms.FormRow, { label: "Clear Saved Messages", subLabel: u + " saved. These replay each time you reopen a channel - clearing stops that.", leading: Forms.FormRow.Icon ? React.createElement(Forms.FormRow.Icon, { source: getAssetIDByName("ic_trash_24px") }) : void 0, onPress: () => {
+      clearSaved();
+      bump();
+    } }),
+    React.createElement(Forms.FormRow, { label: "Remove All Spoofed Messages", subLabel: "Deletes every spoofed message from view now and clears the saved list.", leading: Forms.FormRow.Icon ? React.createElement(Forms.FormRow.Icon, { source: getAssetIDByName("ic_trash_24px") }) : void 0, onPress: () => {
+      removeAllFakes();
+      bump();
+    } })
+  );
+  const tabs = [messageTab, timeTab, convoTab, sdmTab, savedTab];
+  const tabLabels = ["Message", "Time", "Convo", "SDM", "Saved"];
+  if (!_canSwipe) {
+    return React.createElement(
+      React.Fragment,
+      {},
+      React.createElement(Forms.FormRow, { label: "Local Message Spoofer", subLabel: "Local-only fake messages - nothing leaves your device" }),
+      ...tabs
+    );
+  }
+  return React.createElement(
+    React.Fragment,
+    {},
+    React.createElement(Forms.FormRow, { label: "Local Message Spoofer", subLabel: "Local-only fake messages - nothing leaves your device" }),
+    React.createElement(
+      _View,
+      { key: "pager" },
+      React.createElement(
+        _View,
+        { style: { flexDirection: "row", paddingHorizontal: 6, marginBottom: 10, marginTop: 4 } },
+        ...tabLabels.map((lbl, idx) => React.createElement(
+          _Touch,
+          {
+            key: "tab" + idx,
+            style: { flex: 1, paddingVertical: 9, alignItems: "center", borderBottomWidth: 2, borderBottomColor: tab === idx ? "#5865f2" : "rgba(255,255,255,0.08)" },
+            onPress: () => {
+              setTab(idx);
+              try {
+                _scrollRef.current?.scrollTo({ x: idx * _width, animated: true });
+              } catch {
+              }
+            }
+          },
+          React.createElement(_Text, { style: { color: tab === idx ? "#ffffff" : "#949ba4", fontSize: 13, fontWeight: tab === idx ? "600" : "400" } }, lbl)
+        ))
+      ),
+      React.createElement(
+        _SV,
+        {
+          ref: _scrollRef,
+          horizontal: true,
+          pagingEnabled: true,
+          showsHorizontalScrollIndicator: false,
+          keyboardShouldPersistTaps: "handled",
+          onMomentumScrollEnd: (ev) => {
+            try {
+              setTab(Math.round(ev.nativeEvent.contentOffset.x / _width));
+            } catch {
+            }
+          }
+        },
+        ...tabs.map((content, idx) => React.createElement(
+          _View,
+          { key: "page" + idx, style: { width: _width } },
+          React.createElement(
+            _SV,
+            { style: { maxHeight: 560 }, contentContainerStyle: { paddingTop: 8, paddingHorizontal: 14, paddingBottom: 180 }, keyboardShouldPersistTaps: "handled", nestedScrollEnabled: true },
+            content
+          )
+        ))
+      )
+    )
+  );
+}
+function buildServerPicker(bump) {
+  let guilds = [];
+  try {
+    const all = GuildStore2?.getGuilds?.() || {};
+    guilds = Object.keys(all).map((k) => all[k]).filter((g) => g?.name);
+    guilds.sort((a, b) => ("" + a.name).localeCompare("" + b.name));
+  } catch {
+  }
+  const sq = ("" + (storage.serverSearch || "")).trim().toLowerCase();
+  if (sq) guilds = guilds.filter((g) => ("" + g.name).toLowerCase().indexOf(sq) !== -1);
+  const total = guilds.length;
+  const shown = guilds.slice(0, 30);
+  const rows = [
+    React.createElement(Forms.FormInput, { key: "ssearch", title: "Search servers", placeholder: "Type a server name", value: storage.serverSearch || "", onChange: (o) => {
+      storage.serverSearch = o || "";
+      bump();
+    } })
+  ];
+  if (!shown.length) rows.push(React.createElement(Forms.FormRow, { key: "snone", label: sq ? "(no servers match)" : "(no servers found)" }));
+  shown.forEach((g) => rows.push(React.createElement(Forms.FormRow, {
+    key: "g" + g.id,
+    label: g.name,
+    onPress: () => {
+      storage.serverTagId = g.id;
+      storage.serverPickerOpen = false;
+      storage.serverSearch = "";
+      showToastMsg('Set to "' + g.name + '".');
+      bump();
+    }
+  })));
+  if (total > shown.length) rows.push(React.createElement(Forms.FormRow, { key: "smore", label: total - shown.length + " more - keep typing to narrow", subLabel: "Showing the first 30 matches." }));
+  return rows;
+}
+
+// src/index.ts
+var cleanups = [];
+var onLoad = () => {
+  try {
+    initDefaults();
+  } catch {
+  }
+  let unpatches = [];
+  try {
+    unpatches = installPatches();
+  } catch {
+  }
+  let unregister = [];
+  try {
+    unregister = registerAllCommands();
+  } catch {
+  }
+  try {
+    const onChannelSelect = (ev) => {
+      try {
+        if (ev?.channelId) replayChannel(ev.channelId);
+      } catch {
+      }
+    };
+    if (FluxDispatcher?.subscribe) {
+      FluxDispatcher.subscribe("CHANNEL_SELECT", onChannelSelect);
+      cleanups.push(() => FluxDispatcher.unsubscribe("CHANNEL_SELECT", onChannelSelect));
+    }
+  } catch {
+  }
+  try {
+    prefetchSources();
+  } catch {
+  }
+  cleanups = [
+    ...cleanups,
+    ...unregister,
+    ...unpatches
+  ];
+};
+var onUnload = () => {
+  cleanups.forEach((fn) => {
+    try {
+      fn();
+    } catch {
+    }
+  });
+  cleanups = [];
+  try {
+    originalMessages.clear();
+  } catch {
+  }
+  try {
+    setLocalEditing(false);
+  } catch {
+  }
+};
+var settings = SpooferSettings;
