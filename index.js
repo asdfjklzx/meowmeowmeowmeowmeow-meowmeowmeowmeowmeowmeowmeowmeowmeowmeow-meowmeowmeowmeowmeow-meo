@@ -819,12 +819,16 @@
     }
     tt(count ? `Sent ${count} message${count === 1 ? "" : "s"}.` : "No valid lines found.");
   }
-  async function runBulkSDM(cmdServer, cmdTags) {
+  async function runBulkSDM(cmdServer, cmdTags, cmdTargets) {
     var script = ("" + (e.storage.sdmScript || "")).trim();
     if (!script) { tt("Set a preset script in the SDM tab first."); return; }
     script = applyCommandTags(script, null, cmdTags);
-    var raw = ("" + (e.storage.sdmBulkList || "")).trim();
-    if (!raw) { tt("Add targets to the bulk list first."); return; }
+    var raw = "";
+    if (cmdTargets) {
+      raw = ("" + cmdTargets).replace(/,/g, "\n").trim();
+    }
+    if (!raw) raw = ("" + (e.storage.sdmBulkList || "")).trim();
+    if (!raw) { tt("Add targets to the bulk list or pass them in the targets option."); return; }
     var lines = raw.split(/\r?\n/);
     var count = 0, fails = 0;
     for (var li = 0; li < lines.length; li++) {
@@ -1551,25 +1555,25 @@
           const sdmBulkCommand = reg({
             name: "sdm-bulk",
             displayName: "sdm-bulk",
-            description: "Send the preset script to every target in the bulk list. Fill [brackets] inline.",
-            displayDescription: "Send the preset script to every target in the bulk list. Fill [brackets] inline.",
+            description: "Send the preset script to targets. Each gets their own [server].",
+            displayDescription: "Send the preset script to targets. Each gets their own [server].",
             type: 1,
             inputType: 1,
             applicationId: "-1",
             options: [
               {
-                name: "server",
-                displayName: "server",
-                description: "Default [server] value for all targets (overridden by per-line server IDs).",
-                displayDescription: "Default [server] value for all targets (overridden by per-line server IDs).",
+                name: "targets",
+                displayName: "targets",
+                description: "userId server, userId2 server2 (comma-separated)",
+                displayDescription: "userId server, userId2 server2 (comma-separated)",
                 type: 3,
                 required: !1,
               },
               {
-                name: "tags",
-                displayName: "tags",
-                description: "Fill bracket tags: topic=gaming,greeting=yo,reason=collab",
-                displayDescription: "Fill bracket tags: topic=gaming,greeting=yo,reason=collab",
+                name: "server",
+                displayName: "server",
+                description: "Default [server] for targets that don't specify one.",
+                displayDescription: "Default [server] for targets that don't specify one.",
                 type: 3,
                 required: !1,
               },
@@ -1578,7 +1582,7 @@
               var map = Array.isArray(args)
                 ? Object.fromEntries(args.map(function (aa) { return [aa?.name, aa?.value]; }))
                 : args ?? {};
-              await runBulkSDM(map.server, map.tags);
+              await runBulkSDM(map.server, null, map.targets);
             },
           });
           if (typeof sdmBulkCommand === "function") K.push(sdmBulkCommand);
