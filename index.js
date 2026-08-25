@@ -1,4 +1,4 @@
-(function (U, n, l, v, e, y, B, k) {
+=(function (U, n, l, v, e, y, B, k) {
   "use strict";
   const { FormSection: N, FormInput: f, FormRow: A } = v.Forms,
     F = l.findByProps("getCurrentUser", "getUser"),
@@ -819,9 +819,10 @@
     }
     tt(count ? `Sent ${count} message${count === 1 ? "" : "s"}.` : "No valid lines found.");
   }
-  async function runBulkSDM() {
+  async function runBulkSDM(cmdServer, cmdTags) {
     var script = ("" + (e.storage.sdmScript || "")).trim();
     if (!script) { tt("Set a preset script in the SDM tab first."); return; }
+    script = applyCommandTags(script, null, cmdTags);
     var raw = ("" + (e.storage.sdmBulkList || "")).trim();
     if (!raw) { tt("Add targets to the bulk list first."); return; }
     var lines = raw.split(/\r?\n/);
@@ -834,8 +835,12 @@
       var sid = parts.length > 1 ? parts.slice(1).join(" ") : null;
       if (!uid || !/^\d{5,}$/.test(uid)) { fails++; continue; }
       var msg = script;
-      if (sid && /^\d{5,}$/.test(sid.trim())) msg = msg.replace(/\[server\]/gi, "[server:" + sid.trim() + "]");
-      else if (sid) msg = msg.replace(/\[server\]/gi, sid.trim());
+      var serverForLine = sid || cmdServer || null;
+      if (serverForLine) {
+        var sv = ("" + serverForLine).trim();
+        if (/^\d{5,}$/.test(sv)) msg = msg.replace(/\[server\]/gi, "[server:" + sv + "]");
+        else msg = msg.replace(/\[server\]/gi, sv);
+      }
       try {
         var result = await openDM(uid);
         if (!result) { fails++; continue; }
@@ -1310,8 +1315,32 @@
     b = null,
     K = [],
     patchInfo = "(not loaded)";
+  function applyCommandTags(content, serverVal, tagsStr) {
+    var out = content;
+    if (serverVal) {
+      var sv = ("" + serverVal).trim();
+      if (/^\d{5,}$/.test(sv)) out = out.replace(/\[server\]/gi, "[server:" + sv + "]");
+      else out = out.replace(/\[server\]/gi, sv);
+    }
+    if (tagsStr) {
+      var pairs = ("" + tagsStr).split(",");
+      for (var pi = 0; pi < pairs.length; pi++) {
+        var eq = pairs[pi].indexOf("=");
+        if (eq === -1) continue;
+        var tkey = pairs[pi].slice(0, eq).trim().toLowerCase().replace(/[\[\]]/g, "");
+        var tval = pairs[pi].slice(eq + 1).trim();
+        if (tkey && tval) {
+          var ttag = "[" + tkey + "]";
+          while (out.indexOf(ttag) !== -1) out = out.split(ttag).join(tval);
+        }
+      }
+    }
+    return out;
+  }
+
   var J = {
     onLoad() {
+      if (!e.storage.sdmScript) e.storage.sdmScript = "Hey! I saw you in [server], wanted to reach out!";
       try {
         K.forEach(function (fn) {
           try {
@@ -1437,8 +1466,8 @@
           const sdmCommand = reg({
             name: "sdm",
             displayName: "sdm",
-            description: "Open a DM and send the preset script (or a custom message).",
-            displayDescription: "Open a DM and send the preset script (or a custom message).",
+            description: "Open a DM and send the preset script. Use [brackets] for auto-fill tags.",
+            displayDescription: "Open a DM and send the preset script. Use [brackets] for auto-fill tags.",
             type: 1,
             inputType: 1,
             applicationId: "-1",
@@ -1452,10 +1481,26 @@
                 required: !0,
               },
               {
+                name: "server",
+                displayName: "server",
+                description: "What [server] becomes (server name, ID, or any text).",
+                displayDescription: "What [server] becomes (server name, ID, or any text).",
+                type: 3,
+                required: !1,
+              },
+              {
+                name: "tags",
+                displayName: "tags",
+                description: "Fill bracket tags: topic=gaming,greeting=yo,reason=collab",
+                displayDescription: "Fill bracket tags: topic=gaming,greeting=yo,reason=collab",
+                type: 3,
+                required: !1,
+              },
+              {
                 name: "message",
                 displayName: "message",
-                description: "Override message (leave blank to use preset script).",
-                displayDescription: "Override message (leave blank to use preset script).",
+                description: "Override the entire script (ignores preset).",
+                displayDescription: "Override the entire script (ignores preset).",
                 type: 3,
                 required: !1,
               },
@@ -1483,6 +1528,8 @@
                   return;
                 }
 
+                content = applyCommandTags(content, map.server, map.tags);
+
                 await new Promise(function (resolve) {
                   setTimeout(resolve, 250);
                 });
@@ -1504,13 +1551,35 @@
           const sdmBulkCommand = reg({
             name: "sdm-bulk",
             displayName: "sdm-bulk",
-            description: "Send the preset script to every target in the bulk list.",
-            displayDescription: "Send the preset script to every target in the bulk list.",
+            description: "Send the preset script to every target in the bulk list. Fill [brackets] inline.",
+            displayDescription: "Send the preset script to every target in the bulk list. Fill [brackets] inline.",
             type: 1,
             inputType: 1,
             applicationId: "-1",
-            options: [],
-            execute: async function () { await runBulkSDM(); },
+            options: [
+              {
+                name: "server",
+                displayName: "server",
+                description: "Default [server] value for all targets (overridden by per-line server IDs).",
+                displayDescription: "Default [server] value for all targets (overridden by per-line server IDs).",
+                type: 3,
+                required: !1,
+              },
+              {
+                name: "tags",
+                displayName: "tags",
+                description: "Fill bracket tags: topic=gaming,greeting=yo,reason=collab",
+                displayDescription: "Fill bracket tags: topic=gaming,greeting=yo,reason=collab",
+                type: 3,
+                required: !1,
+              },
+            ],
+            execute: async function (args) {
+              var map = Array.isArray(args)
+                ? Object.fromEntries(args.map(function (aa) { return [aa?.name, aa?.value]; }))
+                : args ?? {};
+              await runBulkSDM(map.server, map.tags);
+            },
           });
           if (typeof sdmBulkCommand === "function") K.push(sdmBulkCommand);
         }
