@@ -1471,8 +1471,8 @@
           const sdmCommand = reg({
             name: "sdm",
             displayName: "sdm",
-            description: "Open a DM and send the preset script. Use [brackets] for auto-fill tags.",
-            displayDescription: "Open a DM and send the preset script. Use [brackets] for auto-fill tags.",
+            description: "Send the preset script to a user. [server] = your server input.",
+            displayDescription: "Send the preset script to a user. [server] = your server input.",
             type: 1,
             inputType: 1,
             applicationId: "-1",
@@ -1488,24 +1488,8 @@
               {
                 name: "server",
                 displayName: "server",
-                description: "What [server] becomes (server name, ID, or any text).",
-                displayDescription: "What [server] becomes (server name, ID, or any text).",
-                type: 3,
-                required: !1,
-              },
-              {
-                name: "tags",
-                displayName: "tags",
-                description: "Fill bracket tags: topic=gaming,greeting=yo,reason=collab",
-                displayDescription: "Fill bracket tags: topic=gaming,greeting=yo,reason=collab",
-                type: 3,
-                required: !1,
-              },
-              {
-                name: "message",
-                displayName: "message",
-                description: "Override the entire script (ignores preset).",
-                displayDescription: "Override the entire script (ignores preset).",
+                description: "What [server] becomes in your script.",
+                displayDescription: "What [server] becomes in your script.",
                 type: 3,
                 required: !1,
               },
@@ -1526,14 +1510,13 @@
                   return;
                 }
 
-                var content = ("" + (map.message ?? "")).trim();
-                if (!content) content = ("" + (e.storage.sdmScript || "")).trim();
+                var content = ("" + (e.storage.sdmScript || "")).trim();
                 if (!content) {
-                  tt("No message and no preset script set. Add one in the spoofer SDM tab.");
+                  tt("No preset script set. Add one in the spoofer SDM tab.");
                   return;
                 }
 
-                content = applyCommandTags(content, map.server, map.tags);
+                content = applyCommandTags(content, map.server, null);
 
                 await new Promise(function (resolve) {
                   setTimeout(resolve, 250);
@@ -1543,9 +1526,8 @@
                 const id = genId(timestamp);
 
                 await P(result.channelId, result.userId, content, timestamp, id);
-                z(result.channelId, result.userId, content, id, timestamp);
 
-                tt("Spoofed message sent in DM.");
+                tt("Sent to " + (map.user ?? "user") + ".");
               } catch (err) {
                 tt("Error: " + (err.message || "unknown"));
               }
@@ -1556,8 +1538,8 @@
           const sdmBulkCommand = reg({
             name: "sdm-bulk",
             displayName: "sdm-bulk",
-            description: "Send the preset script to targets. Each gets their own [server].",
-            displayDescription: "Send the preset script to targets. Each gets their own [server].",
+            description: "Send preset script to multiple users. Each gets their own [server].",
+            displayDescription: "Send preset script to multiple users. Each gets their own [server].",
             type: 1,
             inputType: 1,
             applicationId: "-1",
@@ -1565,16 +1547,8 @@
               {
                 name: "targets",
                 displayName: "targets",
-                description: "userId server, userId2 server2 (comma-separated)",
-                displayDescription: "userId server, userId2 server2 (comma-separated)",
-                type: 3,
-                required: !1,
-              },
-              {
-                name: "server",
-                displayName: "server",
-                description: "Default [server] for targets that don't specify one.",
-                displayDescription: "Default [server] for targets that don't specify one.",
+                description: "userId server, userId2 server2",
+                displayDescription: "userId server, userId2 server2",
                 type: 3,
                 required: !1,
               },
@@ -1583,7 +1557,7 @@
               var map = Array.isArray(args)
                 ? Object.fromEntries(args.map(function (aa) { return [aa?.name, aa?.value]; }))
                 : args ?? {};
-              await runBulkSDM(map.server, null, map.targets);
+              await runBulkSDM(null, null, map.targets);
             },
           });
           if (typeof sdmBulkCommand === "function") K.push(sdmBulkCommand);
