@@ -832,7 +832,7 @@
     var lines = raw.split(/\r?\n/);
     var count = 0, fails = 0;
     var dmCache = {};
-    var lastResult = null;
+    var entries = [];
     for (var li = 0; li < lines.length; li++) {
       var trimmed = lines[li].trim();
       if (!trimmed) continue;
@@ -847,21 +847,29 @@
         if (/^\d{5,}$/.test(sv)) msg = msg.replace(/\[server\]/gi, "[server:" + sv + "]");
         else msg = msg.replace(/\[server\]/gi, sv);
       }
+      entries.push({ uid: uid, msg: msg });
+    }
+    for (var ei = 0; ei < entries.length; ei++) {
+      var entry = entries[ei];
       try {
-        var result = dmCache[uid] || await getDMChannelId(uid);
+        var result;
+        if (dmCache[entry.uid]) {
+          result = dmCache[entry.uid];
+          _tryNavigate(result.channelId);
+        } else {
+          result = await openDM(entry.uid);
+        }
         if (!result) { fails++; continue; }
-        dmCache[uid] = result;
-        lastResult = result;
-        await new Promise(function (resolve) { setTimeout(resolve, 300); });
+        dmCache[entry.uid] = result;
+        await new Promise(function (resolve) { setTimeout(resolve, 800); });
         var timestamp = nowISO();
         var id = genId(timestamp);
-        await P(result.channelId, result.userId, msg, timestamp, id);
+        await P(result.channelId, result.userId, entry.msg, timestamp, id);
         count++;
-        await new Promise(function (resolve) { setTimeout(resolve, 300); });
+        if (ei < entries.length - 1) {
+          await new Promise(function (resolve) { setTimeout(resolve, 1200); });
+        }
       } catch (err) { fails++; }
-    }
-    if (lastResult) {
-      try { _tryNavigate(lastResult.channelId); } catch {}
     }
     tt("Bulk SDM: " + count + " sent" + (fails ? ", " + fails + " failed" : "") + ".");
   }
