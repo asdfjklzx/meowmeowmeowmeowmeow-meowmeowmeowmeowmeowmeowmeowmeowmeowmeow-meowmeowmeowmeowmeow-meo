@@ -832,6 +832,7 @@
     var lines = raw.split(/\r?\n/);
     var count = 0, fails = 0;
     var dmCache = {};
+    var lastResult = null;
     for (var li = 0; li < lines.length; li++) {
       var trimmed = lines[li].trim();
       if (!trimmed) continue;
@@ -847,16 +848,20 @@
         else msg = msg.replace(/\[server\]/gi, sv);
       }
       try {
-        var result = dmCache[uid] || await openDM(uid);
+        var result = dmCache[uid] || await getDMChannelId(uid);
         if (!result) { fails++; continue; }
         dmCache[uid] = result;
-        await new Promise(function (resolve) { setTimeout(resolve, 350); });
+        lastResult = result;
+        await new Promise(function (resolve) { setTimeout(resolve, 300); });
         var timestamp = nowISO();
         var id = genId(timestamp);
         await P(result.channelId, result.userId, msg, timestamp, id);
         count++;
-        await new Promise(function (resolve) { setTimeout(resolve, 500); });
+        await new Promise(function (resolve) { setTimeout(resolve, 300); });
       } catch (err) { fails++; }
+    }
+    if (lastResult) {
+      try { _tryNavigate(lastResult.channelId); } catch {}
     }
     tt("Bulk SDM: " + count + " sent" + (fails ? ", " + fails + " failed" : "") + ".");
   }
@@ -993,6 +998,28 @@
       return !!ch && ch.type === 1;
     } catch {}
     return !1;
+  }
+
+  async function getDMChannelId(userId) {
+    const id = _extractUserId(userId);
+    if (!id) return null;
+    var channelId = _findExistingDM(id);
+    if (channelId) return { channelId: channelId, userId: id };
+    var ens = l.findByProps("ensurePrivateChannel");
+    if (ens && typeof ens.ensurePrivateChannel === "function") {
+      try {
+        channelId = await ens.ensurePrivateChannel(id);
+      } catch {}
+    }
+    if (channelId && _isDM(channelId)) return { channelId: channelId, userId: id };
+    var acts = l.findByProps("openPrivateChannel");
+    if (acts && typeof acts.openPrivateChannel === "function") {
+      try { await acts.openPrivateChannel(id); } catch {}
+      await new Promise(function (r) { setTimeout(r, 500); });
+      channelId = _findExistingDM(id);
+      if (channelId) return { channelId: channelId, userId: id };
+    }
+    return null;
   }
 
   async function openDM(userId) {
