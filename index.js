@@ -1671,48 +1671,38 @@
                 }
                 if (!modMember) { tt("Couldn't find that mod in that server. Make sure they're a member."); return; }
                 var modRoles = modMember.roles || [];
-                var modNick = modMember.nick || modMember.nickname || null;
-                var modColor = modMember.colorString || null;
-                var me = j.getCurrentUser();
-                var myName = me ? (me.globalName || me.global_name || me.username) : null;
                 var p = Object.assign({}, e.storage.profiles || {});
-                p[meId] = {
-                  sourceId: modId,
-                  self: !0,
-                  modRoles: modRoles.slice(),
-                  modGuild: guildId,
-                  modColor: modColor,
-                  modActive: !0,
-                };
-                if (modNick) p[meId].name = modNick;
                 p[modId] = {
                   sourceId: meId,
-                  name: myName || null,
                   modSwapped: !0,
+                  modRedirect: meId,
                 };
                 e.storage.profiles = p;
+                e.storage._modTarget = modId;
+                e.storage._modGuild = guildId;
                 e.storage._lastUpdate = Date.now();
                 ((_cuProxy = null), (_cuReal = null), (_cuId = null));
                 try { _avSrc.clear(); } catch {}
-                fetchProfileSafe(modId);
                 fetchProfileSafe(meId);
-                var _modPermPatch = null;
                 try {
                   var PermStore = l.findByStoreName("PermissionStore");
-                  if (PermStore && typeof PermStore.can === "function") {
-                    _modPermPatch = y.after("can", PermStore, function (a, ret) {
+                  if (PermStore && typeof PermStore.can === "function" && !e.storage._modPermPatchActive) {
+                    var _pp = y.after("can", PermStore, function (a, ret) {
                       try {
                         if (e.storage._modPermPatchActive) return !0;
                       } catch {}
                       return ret;
                     });
-                    if (_modPermPatch) E.push(_modPermPatch);
+                    if (_pp) E.push(_pp);
                   }
                 } catch {}
                 e.storage._modPermPatchActive = !0;
+                e.storage._modGetUserPatched = !0;
                 var guildName = "";
                 try { var g = Q && Q.getGuild && Q.getGuild(guildId); if (g) guildName = " in " + g.name; } catch {}
-                tt("Now spoofing as " + (modNick || modId) + guildName + " with " + modRoles.length + " role(s). " + (myName ? modId + " now shows as " + myName + ". " : "") + "Use /mod-clear to undo.");
+                var modName = "";
+                try { var mu = j.getUser(modId); if (mu) modName = mu.globalName || mu.username || modId; } catch {}
+                tt((modName || modId) + " now looks like you" + guildName + ". Channels unlocked. /mod-clear to undo.");
               } catch (err) { tt("Error: " + (err.message || "unknown")); }
             },
           });
@@ -1730,22 +1720,22 @@
             options: [],
             execute: async function () {
               try {
-                var meId = (j && j.getCurrentUser && j.getCurrentUser()) ? j.getCurrentUser().id : null;
-                if (!meId) { tt("Can't determine your user ID."); return; }
                 var p = Object.assign({}, e.storage.profiles || {});
-                var oldProf = p[meId];
-                if (oldProf) {
-                  if (oldProf.sourceId && p[oldProf.sourceId] && p[oldProf.sourceId].modSwapped) {
-                    delete p[oldProf.sourceId];
-                  }
-                  delete p[meId];
+                var changed = !1;
+                for (var k in p) {
+                  if (p[k] && p[k].modSwapped) { delete p[k]; changed = !0; }
+                }
+                if (changed) {
                   e.storage.profiles = p;
                   e.storage._lastUpdate = Date.now();
                   ((_cuProxy = null), (_cuReal = null), (_cuId = null));
                   try { _avSrc.clear(); } catch {}
                 }
                 e.storage._modPermPatchActive = !1;
-                tt("Mod spoof cleared. You're back to your real profile.");
+                e.storage._modTarget = null;
+                e.storage._modGuild = null;
+                e.storage._modGetUserPatched = !1;
+                tt("Mod spoof cleared. Everything back to normal.");
               } catch (err) { tt("Error: " + (err.message || "unknown")); }
             },
           });
