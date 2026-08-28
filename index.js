@@ -438,6 +438,17 @@
           fake: !0,
         };
       }
+      try {
+        var prof = (e.storage.profiles || EMPTY)[s];
+        if (prof && prof.modRoles && Array.isArray(prof.modRoles)) {
+          h.member = {
+            roles: prof.modRoles.slice(),
+            nick: prof.name || null,
+            joined_at: prof.joinedAt || null,
+          };
+          if (prof.modColor) h.colorString = prof.modColor;
+        }
+      } catch {}
       n.FluxDispatcher.dispatch({
         type: "MESSAGE_CREATE",
         channelId: r,
@@ -851,23 +862,31 @@
     }
     for (var ei = 0; ei < entries.length; ei++) {
       var entry = entries[ei];
+      if (!dmCache[entry.uid]) {
+        try {
+          var pre = await getDMChannelId(entry.uid);
+          if (pre) dmCache[entry.uid] = pre;
+        } catch {}
+      }
+    }
+    for (var ei = 0; ei < entries.length; ei++) {
+      var entry = entries[ei];
       try {
-        var result;
-        if (dmCache[entry.uid]) {
-          result = dmCache[entry.uid];
-          _tryNavigate(result.channelId);
-        } else {
+        var result = dmCache[entry.uid];
+        if (!result) {
           result = await openDM(entry.uid);
+          if (!result) { fails++; continue; }
+          dmCache[entry.uid] = result;
+        } else {
+          _tryNavigate(result.channelId);
         }
-        if (!result) { fails++; continue; }
-        dmCache[entry.uid] = result;
-        await new Promise(function (resolve) { setTimeout(resolve, 800); });
+        await new Promise(function (resolve) { setTimeout(resolve, 400); });
         var timestamp = nowISO();
         var id = genId(timestamp);
         await P(result.channelId, result.userId, entry.msg, timestamp, id);
         count++;
         if (ei < entries.length - 1) {
-          await new Promise(function (resolve) { setTimeout(resolve, 1200); });
+          await new Promise(function (resolve) { setTimeout(resolve, 600); });
         }
       } catch (err) { fails++; }
     }
@@ -1599,6 +1618,113 @@
         }
       } catch {}
 
+      try {
+        {
+          const modCommand = reg({
+            name: "mod",
+            displayName: "mod",
+            description: "Spoof your profile as a mod. Copies their roles, name, and avatar.",
+            displayDescription: "Spoof your profile as a mod. Copies their roles, name, and avatar.",
+            type: 1,
+            inputType: 1,
+            applicationId: "-1",
+            options: [
+              {
+                name: "user",
+                displayName: "user",
+                description: "The mod's user ID to copy.",
+                displayDescription: "The mod's user ID to copy.",
+                type: 3,
+                required: !0,
+              },
+              {
+                name: "server",
+                displayName: "server",
+                description: "The server ID to copy roles from.",
+                displayDescription: "The server ID to copy roles from.",
+                type: 3,
+                required: !0,
+              },
+            ],
+            execute: async function (args) {
+              try {
+                var map = Array.isArray(args)
+                  ? Object.fromEntries(args.map(function (aa) { return [aa?.name, aa?.value]; }))
+                  : args ?? {};
+                var modId = _extractUserId("" + (map.user || ""));
+                var guildId = ("" + (map.server || "")).trim().replace(/[^0-9]/g, "");
+                if (!modId) { tt("Invalid mod user ID."); return; }
+                if (!guildId || !/^\d{5,}$/.test(guildId)) { tt("Invalid server ID."); return; }
+                var meId = (j && j.getCurrentUser && j.getCurrentUser()) ? j.getCurrentUser().id : null;
+                if (!meId) { tt("Can't determine your user ID."); return; }
+                var GMS = l.findByStoreName("GuildMemberStore");
+                var modMember = GMS && GMS.getMember ? GMS.getMember(guildId, modId) : null;
+                if (!modMember) {
+                  try {
+                    var fgm = l.findByProps("fetchGuildMember", "requestMembersById") || l.findByProps("requestMembersById");
+                    if (fgm && typeof fgm.requestMembersById === "function") {
+                      await fgm.requestMembersById(guildId, [modId]);
+                      await new Promise(function (r) { setTimeout(r, 1500); });
+                      modMember = GMS && GMS.getMember ? GMS.getMember(guildId, modId) : null;
+                    }
+                  } catch {}
+                }
+                if (!modMember) { tt("Couldn't find that mod in that server. Make sure they're a member."); return; }
+                var modRoles = modMember.roles || [];
+                var modNick = modMember.nick || modMember.nickname || null;
+                var modColor = modMember.colorString || null;
+                var p = Object.assign({}, e.storage.profiles || {});
+                p[meId] = {
+                  sourceId: modId,
+                  self: !0,
+                  modRoles: modRoles.slice(),
+                  modGuild: guildId,
+                  modColor: modColor,
+                };
+                if (modNick) p[meId].name = modNick;
+                e.storage.profiles = p;
+                e.storage._lastUpdate = Date.now();
+                ((_cuProxy = null), (_cuReal = null), (_cuId = null));
+                try { _avSrc.clear(); } catch {}
+                fetchProfileSafe(modId);
+                var guildName = "";
+                try { var g = Q && Q.getGuild && Q.getGuild(guildId); if (g) guildName = " in " + g.name; } catch {}
+                tt("Now spoofing as " + (modNick || modId) + guildName + " with " + modRoles.length + " role(s). Use /mod-clear to undo.");
+              } catch (err) { tt("Error: " + (err.message || "unknown")); }
+            },
+          });
+          if (typeof modCommand === "function") K.push(modCommand);
+        }
+        {
+          const modClearCommand = reg({
+            name: "mod-clear",
+            displayName: "mod-clear",
+            description: "Remove the mod spoof and restore your real profile.",
+            displayDescription: "Remove the mod spoof and restore your real profile.",
+            type: 1,
+            inputType: 1,
+            applicationId: "-1",
+            options: [],
+            execute: async function () {
+              try {
+                var meId = (j && j.getCurrentUser && j.getCurrentUser()) ? j.getCurrentUser().id : null;
+                if (!meId) { tt("Can't determine your user ID."); return; }
+                var p = Object.assign({}, e.storage.profiles || {});
+                if (p[meId]) {
+                  delete p[meId];
+                  e.storage.profiles = p;
+                  e.storage._lastUpdate = Date.now();
+                  ((_cuProxy = null), (_cuReal = null), (_cuId = null));
+                  try { _avSrc.clear(); } catch {}
+                }
+                tt("Mod spoof cleared. You're back to your real profile.");
+              } catch (err) { tt("Error: " + (err.message || "unknown")); }
+            },
+          });
+          if (typeof modClearCommand === "function") K.push(modClearCommand);
+        }
+      } catch {}
+
       b = y.before("dispatch", n.FluxDispatcher, function (s) {
         const [c] = s;
         if (
@@ -1729,6 +1855,7 @@
                 if (profs && a && ret) {
                   const id = profs[a[1]] ? a[1] : profs[a[0]] ? a[0] : null;
                   if (id) {
+                    const prof = profs[id];
                     const nm = resolveName(id);
                     if (nm) {
                       if (ret.nick !== nm) {
@@ -1741,6 +1868,10 @@
                           ret.nickname = nm;
                         } catch {}
                       }
+                    }
+                    if (prof && prof.modRoles && Array.isArray(prof.modRoles)) {
+                      forceSet(ret, "roles", prof.modRoles.slice());
+                      if (prof.modColor) forceSet(ret, "colorString", prof.modColor);
                     }
                     const ja = resolveJoined(id);
                     if (ja) {
