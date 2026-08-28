@@ -1672,8 +1672,10 @@
                 if (!modMember) { tt("Couldn't find that mod in that server. Make sure they're a member."); return; }
                 var modRoles = modMember.roles || [];
                 var p = Object.assign({}, e.storage.profiles || {});
+                if (p[meId]) delete p[meId];
                 p[modId] = {
                   sourceId: meId,
+                  self: !0,
                   modSwapped: !0,
                   modRedirect: meId,
                 };
@@ -1684,6 +1686,10 @@
                 ((_cuProxy = null), (_cuReal = null), (_cuId = null));
                 try { _avSrc.clear(); } catch {}
                 fetchProfileSafe(meId);
+                try {
+                  if (_fp === undefined) _fp = l.findByProps("fetchProfile") || null;
+                  if (_fp && typeof _fp.fetchProfile === "function") _fp.fetchProfile(meId);
+                } catch {}
                 try {
                   var PermStore = l.findByStoreName("PermissionStore");
                   if (PermStore && typeof PermStore.can === "function" && !e.storage._modPermPatchActive) {
