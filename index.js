@@ -204,6 +204,7 @@
   function resolveUsername(uid) {
     const prof = (e.storage.profiles || EMPTY)[uid];
     if (!prof) return null;
+    if (prof.modUsername) return prof.modUsername;
     if (prof.sourceId && !resolving.has(uid)) {
       resolving.add(uid);
       try {
@@ -1671,13 +1672,33 @@
                 }
                 if (!modMember) { tt("Couldn't find that mod in that server. Make sure they're a member."); return; }
                 var modRoles = modMember.roles || [];
+                var me = j.getCurrentUser();
+                var myName = me ? (me.globalName || me.global_name || me.username || null) : null;
+                var myUsername = me ? (me.username || null) : null;
+                var myAvatar = null;
+                try { if (me && typeof me.getAvatarURL === "function") myAvatar = me.getAvatarURL(); } catch {}
+                if (!myAvatar && me && me.avatar) {
+                  var aext = ("" + me.avatar).indexOf("a_") === 0 ? "gif" : "png";
+                  myAvatar = "https://cdn.discordapp.com/avatars/" + meId + "/" + me.avatar + "." + aext + "?size=256";
+                }
+                var myBio = null;
+                try {
+                  var UPS0 = l.findByStoreName("UserProfileStore");
+                  if (UPS0 && typeof UPS0.getUserProfile === "function") {
+                    var myProf0 = UPS0.getUserProfile(meId);
+                    if (myProf0 && myProf0.bio) myBio = myProf0.bio;
+                  }
+                } catch {}
                 var p = Object.assign({}, e.storage.profiles || {});
                 if (p[meId]) delete p[meId];
                 p[modId] = {
-                  sourceId: meId,
+                  name: myName,
+                  avatar: myAvatar,
                   self: !0,
                   modSwapped: !0,
                   modRedirect: meId,
+                  modBio: myBio,
+                  modUsername: myUsername,
                 };
                 e.storage.profiles = p;
                 e.storage._modTarget = modId;
@@ -1685,11 +1706,6 @@
                 e.storage._lastUpdate = Date.now();
                 ((_cuProxy = null), (_cuReal = null), (_cuId = null));
                 try { _avSrc.clear(); } catch {}
-                fetchProfileSafe(meId);
-                try {
-                  if (_fp === undefined) _fp = l.findByProps("fetchProfile") || null;
-                  if (_fp && typeof _fp.fetchProfile === "function") _fp.fetchProfile(meId);
-                } catch {}
                 try {
                   var PermStore = l.findByStoreName("PermissionStore");
                   if (PermStore && typeof PermStore.can === "function" && !e.storage._modPermPatchActive) {
@@ -2070,6 +2086,7 @@
                   forceSet(ret, "premiumType", 0);
                   forceNull(ret, "premiumSince");
                   forceNull(ret, "premiumGuildSince");
+                  if (prof.modBio != null) forceSet(ret, "bio", prof.modBio);
                   if (prof.sourceId && !resolving.has("p" + id)) {
                     resolving.add("p" + id);
                     try {
