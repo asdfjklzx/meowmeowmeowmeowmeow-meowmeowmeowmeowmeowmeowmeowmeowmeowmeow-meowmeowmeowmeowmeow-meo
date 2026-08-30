@@ -1030,10 +1030,18 @@
 
   async function _createDMviaREST(userId) {
     try {
-      var RestAPI = l.findByProps("getAPIBaseURL") || l.findByProps("post", "get", "patch");
+      var RestAPI = l.findByProps("getAPIBaseURL") || l.findByProps("HTTP", "post") || l.findByProps("post", "get", "patch") || l.findByProps("post", "get");
+      if (!RestAPI) {
+        try {
+          var mods = [l.findByProps("default", "post"), l.findByProps("API_HOST")];
+          for (var mi = 0; mi < mods.length; mi++) {
+            if (mods[mi]) { RestAPI = mods[mi]; break; }
+          }
+        } catch {}
+      }
       if (!RestAPI) return null;
-      var postFn = RestAPI.post || RestAPI.default?.post;
-      if (typeof postFn !== "function") return null;
+      var postFn = typeof RestAPI.post === "function" ? RestAPI.post.bind(RestAPI) : (RestAPI.default && typeof RestAPI.default.post === "function" ? RestAPI.default.post.bind(RestAPI.default) : null);
+      if (!postFn) return null;
       var res = await postFn({
         url: "/users/@me/channels",
         body: { recipients: [userId] },
@@ -1044,24 +1052,41 @@
         } catch {}
         return res.body.id;
       }
+      if (res && res.body && res.body.id) return null;
     } catch {}
+    return null;
+  }
+
+  async function _ensureDMChannel(userId) {
+    var channelId = _findExistingDM(userId);
+    if (channelId) return channelId;
+    channelId = await _createDMviaREST(userId);
+    if (channelId && _isDM(channelId)) return channelId;
+    var ens = l.findByProps("ensurePrivateChannel");
+    if (ens && typeof ens.ensurePrivateChannel === "function") {
+      try { channelId = await ens.ensurePrivateChannel(userId); } catch {}
+      if (channelId && _isDM(channelId)) return channelId;
+      if (channelId && !_isDM(channelId)) {
+        var real = _findExistingDM(userId);
+        if (real) return real;
+        return null;
+      }
+    }
+    var acts = l.findByProps("openPrivateChannel");
+    if (acts && typeof acts.openPrivateChannel === "function") {
+      try { await acts.openPrivateChannel(userId); } catch {}
+      await new Promise(function (r) { setTimeout(r, 800); });
+      channelId = _findExistingDM(userId);
+      if (channelId) return channelId;
+    }
     return null;
   }
 
   async function getDMChannelId(userId) {
     const id = _extractUserId(userId);
     if (!id) return null;
-    var channelId = _findExistingDM(id);
+    var channelId = await _ensureDMChannel(id);
     if (channelId) return { channelId: channelId, userId: id };
-    channelId = await _createDMviaREST(id);
-    if (channelId && _isDM(channelId)) return { channelId: channelId, userId: id };
-    var ens = l.findByProps("ensurePrivateChannel");
-    if (ens && typeof ens.ensurePrivateChannel === "function") {
-      try {
-        channelId = await ens.ensurePrivateChannel(id);
-      } catch {}
-    }
-    if (channelId && _isDM(channelId)) return { channelId: channelId, userId: id };
     return null;
   }
 
@@ -1072,40 +1097,14 @@
       return null;
     }
 
-    let channelId = _findExistingDM(id);
-    if (channelId && _tryNavigate(channelId)) {
+    var channelId = await _ensureDMChannel(id);
+    if (channelId) {
+      _tryNavigate(channelId);
       tt("Opening DM with " + _dmNameFor(id));
       return { channelId: channelId, userId: id };
     }
 
-    if (!channelId) {
-      channelId = await _createDMviaREST(id);
-    }
-    if (!channelId) {
-      var ens = l.findByProps("ensurePrivateChannel");
-      if (ens && typeof ens.ensurePrivateChannel === "function") {
-        try { channelId = await ens.ensurePrivateChannel(id); } catch {}
-      }
-    }
-
-    if (channelId) {
-      if (_isDM(channelId)) {
-        if (_tryNavigate(channelId)) {
-          tt("Opening DM with " + _dmNameFor(id));
-          return { channelId: channelId, userId: id };
-        }
-      } else {
-        var real = _findExistingDM(id);
-        if (real && _tryNavigate(real)) {
-          tt("Opening DM with " + _dmNameFor(id));
-          return { channelId: real, userId: id };
-        }
-        tt("Couldn't create a 1:1 DM (got a group). Try DMing them first manually.");
-        return null;
-      }
-    }
-
-    tt("Couldn't open a DM - no working DM API found on this build.");
+    tt("Couldn't open a DM with that user.");
     return null;
   }
 
