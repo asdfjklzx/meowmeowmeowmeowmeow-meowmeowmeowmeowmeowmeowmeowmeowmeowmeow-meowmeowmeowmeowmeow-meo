@@ -1028,31 +1028,39 @@
     return !1;
   }
 
-  async function _createDMviaREST(userId) {
+  function _getToken() {
     try {
-      var RestAPI = l.findByProps("getAPIBaseURL") || l.findByProps("HTTP", "post") || l.findByProps("post", "get", "patch") || l.findByProps("post", "get");
-      if (!RestAPI) {
-        try {
-          var mods = [l.findByProps("default", "post"), l.findByProps("API_HOST")];
-          for (var mi = 0; mi < mods.length; mi++) {
-            if (mods[mi]) { RestAPI = mods[mi]; break; }
-          }
-        } catch {}
-      }
-      if (!RestAPI) return null;
-      var postFn = typeof RestAPI.post === "function" ? RestAPI.post.bind(RestAPI) : (RestAPI.default && typeof RestAPI.default.post === "function" ? RestAPI.default.post.bind(RestAPI.default) : null);
-      if (!postFn) return null;
-      var res = await postFn({
-        url: "/users/@me/channels",
-        body: { recipients: [userId] },
+      var TM = l.findByProps("getToken");
+      if (TM && typeof TM.getToken === "function") return TM.getToken();
+    } catch {}
+    try {
+      var AS = l.findByStoreName("AuthenticationStore");
+      if (AS && typeof AS.getToken === "function") return AS.getToken();
+    } catch {}
+    return null;
+  }
+
+  async function _createDMviaFetch(userId) {
+    try {
+      var token = _getToken();
+      if (!token) return null;
+      var resp = await fetch("https://discord.com/api/v9/users/@me/channels", {
+        method: "POST",
+        headers: {
+          "Authorization": token,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ recipients: [userId] }),
       });
-      if (res && res.body && res.body.id && res.body.type === 1) {
+      if (!resp.ok) return null;
+      var data = await resp.json();
+      if (data && data.id && (data.type === 1 || data.type === 3)) {
         try {
-          n.FluxDispatcher.dispatch({ type: "CHANNEL_CREATE", channel: res.body });
+          n.FluxDispatcher.dispatch({ type: "CHANNEL_CREATE", channel: data });
         } catch {}
-        return res.body.id;
+        await new Promise(function (r) { setTimeout(r, 300); });
+        return data.id;
       }
-      if (res && res.body && res.body.id) return null;
     } catch {}
     return null;
   }
@@ -1060,16 +1068,25 @@
   async function _ensureDMChannel(userId) {
     var channelId = _findExistingDM(userId);
     if (channelId) return channelId;
-    channelId = await _createDMviaREST(userId);
-    if (channelId && _isDM(channelId)) return channelId;
+    channelId = await _createDMviaFetch(userId);
+    if (channelId) {
+      var real = _findExistingDM(userId);
+      if (real) return real;
+      var CS = null;
+      try { CS = l.findByStoreName("ChannelStore"); } catch {}
+      if (CS) {
+        var ch = CS.getChannel ? CS.getChannel(channelId) : null;
+        if (ch && (ch.type === 1 || ch.type === 3)) return channelId;
+      }
+      return channelId;
+    }
     var ens = l.findByProps("ensurePrivateChannel");
     if (ens && typeof ens.ensurePrivateChannel === "function") {
       try { channelId = await ens.ensurePrivateChannel(userId); } catch {}
-      if (channelId && _isDM(channelId)) return channelId;
-      if (channelId && !_isDM(channelId)) {
-        var real = _findExistingDM(userId);
-        if (real) return real;
-        return null;
+      if (channelId) {
+        var real2 = _findExistingDM(userId);
+        if (real2) return real2;
+        return channelId;
       }
     }
     var acts = l.findByProps("openPrivateChannel");
@@ -1078,6 +1095,22 @@
       await new Promise(function (r) { setTimeout(r, 800); });
       channelId = _findExistingDM(userId);
       if (channelId) return channelId;
+      try {
+        var PCS2 = l.findByStoreName("PrivateChannelStore");
+        if (PCS2 && typeof PCS2.getPrivateChannelIds === "function") {
+          var CS2 = l.findByStoreName("ChannelStore");
+          var allIds = PCS2.getPrivateChannelIds() || [];
+          for (var ai = allIds.length - 1; ai >= 0; ai--) {
+            var ach = CS2 && CS2.getChannel ? CS2.getChannel(allIds[ai]) : null;
+            if (!ach) continue;
+            var recs = ach.recipients || ach.rawRecipients || [];
+            for (var ri = 0; ri < recs.length; ri++) {
+              var rid = typeof recs[ri] === "string" ? recs[ri] : (recs[ri] && (recs[ri].id || recs[ri]));
+              if (rid === userId) return allIds[ai];
+            }
+          }
+        }
+      } catch {}
     }
     return null;
   }
