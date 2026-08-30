@@ -694,8 +694,24 @@
   }
   function tt(r) {
     try {
-      W?.showToast?.(r);
+      if (W && typeof W.showToast === "function") { W.showToast(r); return; }
     } catch {}
+    try {
+      var W2 = l.findByProps("open", "close", "showToast");
+      if (W2 && typeof W2.showToast === "function") { W2.showToast(r); return; }
+    } catch {}
+    try {
+      var toastMod = l.findByProps("showToast", "createToast");
+      if (toastMod && typeof toastMod.showToast === "function" && typeof toastMod.createToast === "function") {
+        toastMod.showToast(toastMod.createToast("" + r, 0));
+        return;
+      }
+    } catch {}
+    try {
+      var toastMod2 = l.findByProps("showToast");
+      if (toastMod2 && typeof toastMod2.showToast === "function") { toastMod2.showToast("" + r); return; }
+    } catch {}
+    try { console.log("[Spoofer] " + r); } catch {}
   }
   function mkISO(Y0, Mo, D0, H0, Mi, useUTC) {
     const dt = useUTC
@@ -901,7 +917,7 @@
     if (m) return m[1];
     m = s.match(/users\/(\d{17,20})\b/);
     if (m) return m[1];
-    if (/^\d{17,20}$/.test(s)) return s;
+    if (/^\d{5,20}$/.test(s)) return s;
     return null;
   }
   function _dmNameFor(id) {
@@ -992,29 +1008,34 @@
   }
   function _findExistingDM(id) {
     try {
-      const CS = l.findByStoreName("ChannelStore");
-      const PCS = l.findByStoreName("PrivateChannelStore");
-      let cid = null;
+      var CS = l.findByStoreName("ChannelStore");
+      var PCS = l.findByStoreName("PrivateChannelStore");
+      var cid = null;
       try {
         if (PCS && typeof PCS.getDMFromUserId === "function")
           cid = PCS.getDMFromUserId(id);
       } catch {}
       if (cid) {
-        const ch = CS && CS.getChannel ? CS.getChannel(cid) : null;
-        if (ch && ch.type === 1) return cid;
+        var ch0 = CS && CS.getChannel ? CS.getChannel(cid) : null;
+        if (ch0 && (ch0.type === 1 || ch0.type === 3)) return cid;
       }
-      let ids = [];
+      var ids = [];
       try {
         if (PCS && typeof PCS.getPrivateChannelIds === "function")
           ids = PCS.getPrivateChannelIds() || [];
       } catch {}
-      for (let i = 0; i < ids.length; i++) {
-        const ch = CS && CS.getChannel ? CS.getChannel(ids[i]) : null;
-        if (!ch || ch.type !== 1) continue;
-        const r = ch.recipients || [];
-        if (r.length !== 1) continue;
-        const rid = typeof r[0] === "string" ? r[0] : r[0] && r[0].id;
-        if (rid === id) return ids[i];
+      for (var i = 0; i < ids.length; i++) {
+        var ch = CS && CS.getChannel ? CS.getChannel(ids[i]) : null;
+        if (!ch) continue;
+        if (ch.type !== 1 && ch.type !== 3) continue;
+        var r = ch.recipients || ch.rawRecipients || [];
+        for (var ri = 0; ri < r.length; ri++) {
+          var rid = typeof r[ri] === "string" ? r[ri] : (r[ri] && (r[ri].id || r[ri]));
+          if (rid === id) {
+            if (ch.type === 1) return ids[i];
+            if (ch.type === 3 && r.length <= 2) return ids[i];
+          }
+        }
       }
     } catch {}
     return null;
@@ -1030,8 +1051,18 @@
 
   function _getToken() {
     try {
-      var TM = l.findByProps("getToken");
-      if (TM && typeof TM.getToken === "function") return TM.getToken();
+      var TM = l.findByProps("getToken", "setToken");
+      if (TM && typeof TM.getToken === "function") {
+        var t = TM.getToken();
+        if (t) return t;
+      }
+    } catch {}
+    try {
+      var TM2 = l.findByProps("getToken");
+      if (TM2 && typeof TM2.getToken === "function") {
+        var t2 = TM2.getToken();
+        if (t2) return t2;
+      }
     } catch {}
     try {
       var AS = l.findByStoreName("AuthenticationStore");
@@ -1050,15 +1081,15 @@
           "Authorization": token,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ recipients: [userId] }),
+        body: JSON.stringify({ recipient_id: userId }),
       });
       if (!resp.ok) return null;
       var data = await resp.json();
-      if (data && data.id && (data.type === 1 || data.type === 3)) {
+      if (data && data.id) {
         try {
           n.FluxDispatcher.dispatch({ type: "CHANNEL_CREATE", channel: data });
         } catch {}
-        await new Promise(function (r) { setTimeout(r, 300); });
+        await new Promise(function (r) { setTimeout(r, 400); });
         return data.id;
       }
     } catch {}
@@ -1068,55 +1099,55 @@
   async function _ensureDMChannel(userId) {
     var channelId = _findExistingDM(userId);
     if (channelId) return channelId;
+
     channelId = await _createDMviaFetch(userId);
-    if (channelId) {
-      var real = _findExistingDM(userId);
-      if (real) return real;
-      var CS = null;
-      try { CS = l.findByStoreName("ChannelStore"); } catch {}
-      if (CS) {
-        var ch = CS.getChannel ? CS.getChannel(channelId) : null;
-        if (ch && (ch.type === 1 || ch.type === 3)) return channelId;
-      }
-      return channelId;
-    }
+    if (channelId) return channelId;
+
     var ens = l.findByProps("ensurePrivateChannel");
     if (ens && typeof ens.ensurePrivateChannel === "function") {
       try { channelId = await ens.ensurePrivateChannel(userId); } catch {}
       if (channelId) {
-        var real2 = _findExistingDM(userId);
-        if (real2) return real2;
-        return channelId;
+        var existing = _findExistingDM(userId);
+        if (existing) return existing;
+        if (_isDM(channelId)) return channelId;
       }
     }
+
     var acts = l.findByProps("openPrivateChannel");
     if (acts && typeof acts.openPrivateChannel === "function") {
-      try { await acts.openPrivateChannel(userId); } catch {}
-      await new Promise(function (r) { setTimeout(r, 800); });
-      channelId = _findExistingDM(userId);
-      if (channelId) return channelId;
-      try {
-        var PCS2 = l.findByStoreName("PrivateChannelStore");
-        if (PCS2 && typeof PCS2.getPrivateChannelIds === "function") {
-          var CS2 = l.findByStoreName("ChannelStore");
-          var allIds = PCS2.getPrivateChannelIds() || [];
-          for (var ai = allIds.length - 1; ai >= 0; ai--) {
-            var ach = CS2 && CS2.getChannel ? CS2.getChannel(allIds[ai]) : null;
-            if (!ach) continue;
-            var recs = ach.recipients || ach.rawRecipients || [];
-            for (var ri = 0; ri < recs.length; ri++) {
-              var rid = typeof recs[ri] === "string" ? recs[ri] : (recs[ri] && (recs[ri].id || recs[ri]));
-              if (rid === userId) return allIds[ai];
-            }
+      var shapes = [[userId], userId, { recipients: [userId] }];
+      for (var si = 0; si < shapes.length; si++) {
+        try {
+          await acts.openPrivateChannel(shapes[si]);
+          await new Promise(function (r) { setTimeout(r, 600); });
+          channelId = _findExistingDM(userId);
+          if (channelId) return channelId;
+        } catch {}
+      }
+    }
+
+    try {
+      var PCS2 = l.findByStoreName("PrivateChannelStore");
+      var CS2 = l.findByStoreName("ChannelStore");
+      if (PCS2 && typeof PCS2.getPrivateChannelIds === "function" && CS2) {
+        var allIds = PCS2.getPrivateChannelIds() || [];
+        for (var ai = allIds.length - 1; ai >= Math.max(0, allIds.length - 30); ai--) {
+          var ach = CS2.getChannel ? CS2.getChannel(allIds[ai]) : null;
+          if (!ach) continue;
+          var recs = ach.recipients || ach.rawRecipients || [];
+          for (var ri = 0; ri < recs.length; ri++) {
+            var rid = typeof recs[ri] === "string" ? recs[ri] : (recs[ri] && (recs[ri].id || recs[ri]));
+            if (rid === userId) return allIds[ai];
           }
         }
-      } catch {}
-    }
+      }
+    } catch {}
+
     return null;
   }
 
   async function getDMChannelId(userId) {
-    const id = _extractUserId(userId);
+    var id = _extractUserId(userId);
     if (!id) return null;
     var channelId = await _ensureDMChannel(id);
     if (channelId) return { channelId: channelId, userId: id };
@@ -1124,7 +1155,7 @@
   }
 
   async function openDM(userId) {
-    const id = _extractUserId(userId);
+    var id = _extractUserId(userId);
     if (!id) {
       tt("Invalid user - expected an ID, mention, or profile link.");
       return null;
@@ -1133,11 +1164,10 @@
     var channelId = await _ensureDMChannel(id);
     if (channelId) {
       _tryNavigate(channelId);
-      tt("Opening DM with " + _dmNameFor(id));
       return { channelId: channelId, userId: id };
     }
 
-    tt("Couldn't open a DM with that user.");
+    tt("Couldn't open DM. Try messaging them manually first, then retry.");
     return null;
   }
 
