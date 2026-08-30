@@ -2786,6 +2786,74 @@
                     }),
                   );
                   M.splice(
+                    p + 1,
+                    0,
+                    n.React.createElement(w, {
+                      label: "Edit Time",
+                      icon: n.React.createElement(w.Icon, {
+                        source: B.getAssetIDByName("ic_timer_24px") || B.getAssetIDByName("ic_edit_24px"),
+                      }),
+                      onPress: function () {
+                        try {
+                          _.hideActionSheet();
+                          var RN = n.ReactNative || l.findByProps("Alert");
+                          var AlertMod = (RN && RN.Alert) || l.findByProps("prompt", "alert");
+                          if (!AlertMod || typeof AlertMod.prompt !== "function") {
+                            tt("Alert.prompt not available on this build.");
+                            return;
+                          }
+                          var curTime = "";
+                          try {
+                            var d0 = new Date(a.timestamp);
+                            if (!isNaN(d0.getTime())) {
+                              curTime = d0.getFullYear() + "-" +
+                                ("0" + (d0.getMonth() + 1)).slice(-2) + "-" +
+                                ("0" + d0.getDate()).slice(-2) + " " +
+                                ("0" + d0.getHours()).slice(-2) + ":" +
+                                ("0" + d0.getMinutes()).slice(-2);
+                            }
+                          } catch {}
+                          AlertMod.prompt(
+                            "Edit Time",
+                            "Format: 2025-03-15 14:30 or 3:30pm or 15:30",
+                            [
+                              { text: "Cancel", style: "cancel" },
+                              {
+                                text: "Set",
+                                onPress: function (val) {
+                                  try {
+                                    var input = ("" + (val || "")).trim();
+                                    if (!input) return;
+                                    var newISO = null;
+                                    var now = nowDate();
+                                    var baseObj = { y: now.getFullYear(), mo: now.getMonth() + 1, d: now.getDate() };
+                                    newISO = parseTime(input, baseObj, !1);
+                                    if (!newISO) {
+                                      var tryDate = new Date(input);
+                                      if (!isNaN(tryDate.getTime())) newISO = tryDate.toISOString();
+                                    }
+                                    if (!newISO) { tt("Couldn't parse that time."); return; }
+                                    var saved = e.storage.savedMessages || [];
+                                    var rec = saved.find(function (ss) { return ss.id === a.id; });
+                                    if (rec) { rec.timestamp = newISO; L(saved); }
+                                    n.FluxDispatcher.dispatch({
+                                      type: "MESSAGE_UPDATE",
+                                      message: Object.assign({}, a, { timestamp: newISO, edited_timestamp: null }),
+                                      otherPluginBypass: !0,
+                                    });
+                                    tt("Time updated.");
+                                  } catch (err) { tt("Error: " + (err.message || "unknown")); }
+                                },
+                              },
+                            ],
+                            "plain-text",
+                            curTime
+                          );
+                        } catch (err) { tt("Error: " + (err.message || "unknown")); }
+                      },
+                    }),
+                  );
+                  M.splice(
                     p,
                     0,
                     n.React.createElement(w, {
