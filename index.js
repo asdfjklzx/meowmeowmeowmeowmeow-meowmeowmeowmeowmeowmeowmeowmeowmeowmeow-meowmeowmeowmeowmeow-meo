@@ -1,11 +1,55 @@
 (function (U, n, l, v, e, y, B, k) {
   "use strict";
-  const _Forms = v.Forms || (function() { try { var m = l.findByProps("FormSection", "FormRow"); if (m) return m; } catch(e) {} try { var m2 = l.findByProps("FormRow", "FormSwitch"); if (m2) return m2; } catch(e) {} return {}; })(),
-    _Switch = _Forms.FormSwitch || (function() { try { var m = l.findByProps("FormSwitch"); if (m && m.FormSwitch) return m.FormSwitch; } catch(e) {} try { var RN = n.ReactNative || l.findByProps("Switch"); if (RN && RN.Switch) return RN.Switch; } catch(e) {} return function() { return null; }; })(),
-    _N0 = _Forms.FormSection, _f0 = _Forms.FormInput, _A0 = _Forms.FormRow,
-    N = _N0 || (function() { try { var m = l.findByProps("FormSection"); if (m && m.FormSection) return m.FormSection; } catch(e) {} return function(p) { return n.React.createElement(n.React.Fragment, null, p && p.children); }; })(),
-    f = _f0 || (function() { try { var m = l.findByProps("FormInput"); if (m && m.FormInput) return m.FormInput; } catch(e) {} return null; })(),
-    A = _A0 || (function() { try { var m = l.findByProps("FormRow"); if (m && m.FormRow) return m.FormRow; } catch(e) {} return null; })(),
+  var _RN0 = n.ReactNative || l.findByProps("View", "Text", "TouchableOpacity") || {};
+  const _Forms = v.Forms || (function() {
+    try { var m = l.findByProps("FormSection", "FormRow"); if (m && m.FormRow) return m; } catch(e) {}
+    try { var m2 = l.findByProps("FormRow", "FormSwitch"); if (m2 && m2.FormRow) return m2; } catch(e) {}
+    try { var m3 = l.findByProps("FormRow"); if (m3 && m3.FormRow) return m3; } catch(e) {}
+    return {};
+  })(),
+    _Switch = _Forms.FormSwitch || (function() {
+      try { var m = l.findByProps("FormSwitch"); if (m && m.FormSwitch) return m.FormSwitch; } catch(e) {}
+      try { if (_RN0.Switch) return _RN0.Switch; } catch(e) {}
+      return function(_p) { return null; };
+    })(),
+    _FallbackRow = (function() {
+      var _V = _RN0.View, _T = _RN0.Text, _TO = _RN0.TouchableOpacity || _RN0.Pressable;
+      if (!_V || !_T) return null;
+      var comp = function(p) {
+        var inner = n.React.createElement(_V, { style: { flexDirection: "row", alignItems: "center", paddingVertical: 12, paddingHorizontal: 16 } },
+          p.leading ? n.React.createElement(_V, { style: { marginRight: 10 } }, p.leading) : null,
+          n.React.createElement(_V, { style: { flex: 1 } },
+            p.label ? n.React.createElement(_T, { style: { color: "#dcddde", fontSize: 16 } }, p.label) : null,
+            p.subLabel ? n.React.createElement(_T, { style: { color: "#72767d", fontSize: 13, marginTop: 2 } }, p.subLabel) : null
+          ),
+          p.trailing || null
+        );
+        return p.onPress && _TO ? n.React.createElement(_TO, { onPress: p.onPress, activeOpacity: 0.6 }, inner) : inner;
+      };
+      comp.Icon = function(p) { return null; };
+      return comp;
+    })(),
+    _FallbackInput = (function() {
+      var _V = _RN0.View, _T = _RN0.Text, _TI = _RN0.TextInput || (function() { try { var m = l.findByProps("TextInput"); return m && m.TextInput; } catch(e) {} return null; })();
+      if (!_V || !_T || !_TI) return null;
+      return function(p) {
+        return n.React.createElement(_V, { style: { paddingVertical: 8, paddingHorizontal: 16 } },
+          p.title ? n.React.createElement(_T, { style: { color: "#dcddde", fontSize: 14, marginBottom: 4 } }, p.title) : null,
+          n.React.createElement(_TI, {
+            style: { color: "#dcddde", backgroundColor: "#36393f", borderRadius: 8, padding: 10, fontSize: 14, minHeight: p.multiline ? 80 : 40 },
+            placeholder: p.placeholder || "",
+            placeholderTextColor: "#72767d",
+            value: p.value || "",
+            onChangeText: p.onChange,
+            multiline: p.multiline || false,
+            keyboardType: p.keyboardType || "default",
+          })
+        );
+      };
+    })(),
+    N = _Forms.FormSection || (function() { try { var m = l.findByProps("FormSection"); if (m && m.FormSection) return m.FormSection; } catch(e) {} return function(p) { return n.React.createElement(n.React.Fragment, null, p && p.children); }; })(),
+    f = _Forms.FormInput || (function() { try { var m = l.findByProps("FormInput"); if (m && m.FormInput) return m.FormInput; } catch(e) {} return _FallbackInput; })(),
+    A = _Forms.FormRow || (function() { try { var m = l.findByProps("FormRow"); if (m && m.FormRow) return m.FormRow; } catch(e) {} return _FallbackRow; })(),
     F = l.findByProps("getCurrentUser", "getUser") || l.findByStoreName("UserStore") || {},
     O = l.findByProps("getChannel", "getChannelId") || l.findByStoreName("ChannelStore") || {},
     $ = l.findByProps("getChannelId", "getLastSelectedChannelId") || l.findByStoreName("SelectedChannelStore") || l.findByProps("getChannelId") || {},
@@ -2994,16 +3038,30 @@
         I.clear());
     },
     settings: function (props) {
+      try { return _settingsInner(props); } catch(err) {
+        var _eRN = _RN0 || {};
+        var _eV = _eRN.View || n.React.Fragment;
+        var _eT = _eRN.Text;
+        if (_eT) return n.React.createElement(_eV, { style: { padding: 20 } },
+          n.React.createElement(_eT, { style: { color: "#ff6b6b", fontSize: 16, fontWeight: "bold" } }, "Spoofer Settings Error"),
+          n.React.createElement(_eT, { style: { color: "#dcddde", fontSize: 14, marginTop: 8 } }, "" + (err && err.message || err)),
+          n.React.createElement(_eT, { style: { color: "#72767d", fontSize: 12, marginTop: 8 } }, "FormRow: " + (A ? "OK" : "MISSING") + " | FormInput: " + (f ? "OK" : "MISSING") + " | FormSection: " + (N ? "OK" : "MISSING") + " | Switch: " + (_Switch ? "OK" : "MISSING"))
+        );
+        return null;
+      }
+    },
+  };
+  function _settingsInner(props) {
       const [tick, setTick] = n.React.useState(0);
       const [tab, setTab] = n.React.useState(0);
       const _scrollRef = n.React.useRef(null);
-      const _RN = n.ReactNative || l.findByProps("ScrollView", "View");
-      const _View = _RN && _RN.View;
-      const _SV = _RN && _RN.ScrollView;
-      const _Touch = (_RN && _RN.TouchableOpacity) || (_RN && _RN.Pressable);
-      const _Text = _RN && _RN.Text;
+      const _RN = _RN0 || n.ReactNative || l.findByProps("ScrollView", "View") || {};
+      const _View = _RN.View;
+      const _SV = _RN.ScrollView;
+      const _Touch = _RN.TouchableOpacity || _RN.Pressable;
+      const _Text = _RN.Text;
       let _width = 380;
-      try { if (_RN && _RN.Dimensions && _RN.Dimensions.get) _width = _RN.Dimensions.get("window").width || 380; } catch {}
+      try { if (_RN.Dimensions && _RN.Dimensions.get) _width = _RN.Dimensions.get("window").width || 380; } catch {}
       const _canSwipe = !!(_View && _SV && _Touch && _Text);
       let nav = null;
       try {
@@ -3011,7 +3069,7 @@
       } catch {}
       const r = e.storage.userId || "",
         s = e.storage.message || "",
-        c = r ? F.getUser(r) : null,
+        c = r ? (F.getUser ? F.getUser(r) : null) : null,
         u = (e.storage.savedMessages || []).length,
         pid = e.storage.profileId || "",
         pname = e.storage.profileName || "",
@@ -4407,8 +4465,7 @@
         )
             )
       );
-    },
-  };
+  }
   return (
     (U.default = J),
     Object.defineProperty(U, "__esModule", { value: !0 }),
