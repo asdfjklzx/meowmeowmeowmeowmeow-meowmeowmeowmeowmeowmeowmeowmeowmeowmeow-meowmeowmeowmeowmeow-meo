@@ -1537,6 +1537,7 @@
 
   var J = {
     onLoad() {
+      try { console.log("[Spoofer] onLoad: React=" + !!n.React + " RN=" + !!_RN0.View + " Forms=" + !!_Forms.FormRow + " findByProps=" + !!l.findByProps + " patcher=" + !!y.after + " FluxDispatcher=" + !!n.FluxDispatcher + " storage=" + !!e.storage); } catch(x) { console.log("[Spoofer] onLoad: diag failed: " + x); }
       try { if (!e.storage.sdmScript) e.storage.sdmScript = "Hey! I saw you in [server], wanted to reach out!"; } catch {}
       try {
         K.forEach(function (fn) {
@@ -3038,19 +3039,34 @@
         I.clear());
     },
     settings: function (props) {
-      try { return _settingsInner(props); } catch(err) {
-        var _eRN = _RN0 || {};
-        var _eV = _eRN.View || n.React.Fragment;
-        var _eT = _eRN.Text;
-        if (_eT) return n.React.createElement(_eV, { style: { padding: 20 } },
-          n.React.createElement(_eT, { style: { color: "#ff6b6b", fontSize: 16, fontWeight: "bold" } }, "Spoofer Settings Error"),
-          n.React.createElement(_eT, { style: { color: "#dcddde", fontSize: 14, marginTop: 8 } }, "" + (err && err.message || err)),
-          n.React.createElement(_eT, { style: { color: "#72767d", fontSize: 12, marginTop: 8 } }, "FormRow: " + (A ? "OK" : "MISSING") + " | FormInput: " + (f ? "OK" : "MISSING") + " | FormSection: " + (N ? "OK" : "MISSING") + " | Switch: " + (_Switch ? "OK" : "MISSING"))
-        );
-        return null;
-      }
+      return n.React.createElement(_SettingsWrapper, props);
     },
   };
+  function _SettingsWrapper(props) {
+    var _err = null;
+    try { return _settingsInner(props); } catch(err) { _err = err; }
+    var _eV = (_RN0 && _RN0.View) || null;
+    var _eT = (_RN0 && _RN0.Text) || null;
+    var _eSV = (_RN0 && _RN0.ScrollView) || null;
+    if (!_eV || !_eT) return null;
+    var diag = "Error: " + (_err && _err.message || _err) +
+      "\n\nReact: " + (n.React ? "OK" : "MISSING") +
+      "\nReactNative: " + (_RN0.View ? "OK" : "MISSING") +
+      "\nForms: " + (v.Forms ? "OK" : "MISSING") +
+      "\nFormRow: " + (A ? (A === _FallbackRow ? "FALLBACK" : "OK") : "MISSING") +
+      "\nFormInput: " + (f ? (f === _FallbackInput ? "FALLBACK" : "OK") : "MISSING") +
+      "\nFormSection: " + (N ? "OK" : "MISSING") +
+      "\nSwitch: " + (_Switch ? "OK" : "MISSING") +
+      "\nfindByProps: " + (typeof l.findByProps === "function" ? "OK" : "MISSING") +
+      "\npatcher: " + (typeof y.after === "function" ? "OK" : "MISSING") +
+      "\nFluxDispatcher: " + (n.FluxDispatcher ? "OK" : "MISSING") +
+      "\nstorage: " + (e.storage ? "OK" : "MISSING");
+    try { console.log("[Spoofer] Settings crash: " + diag); } catch(x) {}
+    return n.React.createElement(_eSV || _eV, { style: { padding: 20 } },
+      n.React.createElement(_eT, { style: { color: "#ff6b6b", fontSize: 18, fontWeight: "bold", marginBottom: 12 } }, "Spoofer Settings Error"),
+      n.React.createElement(_eT, { style: { color: "#dcddde", fontSize: 14, lineHeight: 22 } }, diag)
+    );
+  }
   function _settingsInner(props) {
       const [tick, setTick] = n.React.useState(0);
       const [tab, setTab] = n.React.useState(0);
@@ -4471,12 +4487,12 @@
     Object.defineProperty(U, "__esModule", { value: !0 }),
     U
   );
-})(...(function() {
+}).apply(null, (function() {
   var g = null;
-  try { g = typeof vendetta !== "undefined" ? vendetta : null; } catch(e) {}
-  if (!g) try { g = typeof bunny !== "undefined" ? bunny : null; } catch(e) {}
-  if (!g) try { g = typeof kettu !== "undefined" ? kettu : null; } catch(e) {}
-  if (!g) try { g = globalThis.vendetta || globalThis.bunny || globalThis.kettu || null; } catch(e) {}
+  try { g = typeof vendetta !== "undefined" ? vendetta : null; } catch(x) {}
+  if (!g) try { g = typeof bunny !== "undefined" ? bunny : null; } catch(x) {}
+  if (!g) try { g = typeof kettu !== "undefined" ? kettu : null; } catch(x) {}
+  if (!g) try { g = globalThis.vendetta || globalThis.bunny || globalThis.kettu || null; } catch(x) {}
   if (!g) g = {};
   return [
     {},
@@ -4488,10 +4504,10 @@
         var S = g.storage;
         if (S && typeof S.createStorage === "function" && typeof S.createMMKVBackend === "function") {
           var st = S.createStorage(S.createMMKVBackend("local-message-spoofer"));
-          if (typeof S.awaitSyncWrapper === "function") { try { S.awaitSyncWrapper(st); } catch(e) {} }
+          if (typeof S.awaitSyncWrapper === "function") { try { S.awaitSyncWrapper(st); } catch(x) {} }
           return st;
         }
-      } catch(e) {}
+      } catch(x) {}
       return {};
     })() },
     g.patcher || (g.api && g.api.patcher) || {},
