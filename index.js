@@ -1,14 +1,19 @@
 (function (U, n, l, v, e, y, B, k) {
   "use strict";
-  const { FormSection: N, FormInput: f, FormRow: A } = v.Forms,
-    F = l.findByProps("getCurrentUser", "getUser"),
-    O = l.findByProps("getChannel", "getChannelId"),
-    $ = l.findByProps("getChannelId", "getLastSelectedChannelId"),
-    _ = l.findByProps("openLazy", "hideActionSheet"),
-    w = l.findByProps("ActionSheetRow")?.ActionSheetRow ?? v.Forms.FormRow,
+  const _Forms = v.Forms || (function() { try { var m = l.findByProps("FormSection", "FormRow"); if (m) return m; } catch(e) {} try { var m2 = l.findByProps("FormRow", "FormSwitch"); if (m2) return m2; } catch(e) {} return {}; })(),
+    _Switch = _Forms.FormSwitch || (function() { try { var m = l.findByProps("FormSwitch"); if (m && m.FormSwitch) return m.FormSwitch; } catch(e) {} try { var RN = n.ReactNative || l.findByProps("Switch"); if (RN && RN.Switch) return RN.Switch; } catch(e) {} return function() { return null; }; })(),
+    _N0 = _Forms.FormSection, _f0 = _Forms.FormInput, _A0 = _Forms.FormRow,
+    N = _N0 || (function() { try { var m = l.findByProps("FormSection"); if (m && m.FormSection) return m.FormSection; } catch(e) {} return function(p) { return n.React.createElement(n.React.Fragment, null, p && p.children); }; })(),
+    f = _f0 || (function() { try { var m = l.findByProps("FormInput"); if (m && m.FormInput) return m.FormInput; } catch(e) {} return null; })(),
+    A = _A0 || (function() { try { var m = l.findByProps("FormRow"); if (m && m.FormRow) return m.FormRow; } catch(e) {} return null; })(),
+    F = l.findByProps("getCurrentUser", "getUser") || l.findByStoreName("UserStore") || {},
+    O = l.findByProps("getChannel", "getChannelId") || l.findByStoreName("ChannelStore") || {},
+    $ = l.findByProps("getChannelId", "getLastSelectedChannelId") || l.findByStoreName("SelectedChannelStore") || l.findByProps("getChannelId") || {},
+    _ = l.findByProps("openLazy", "hideActionSheet") || l.findByProps("openLazy") || l.findByProps("hideActionSheet") || {},
+    w = (function() { try { var m = l.findByProps("ActionSheetRow"); if (m && m.ActionSheetRow) return m.ActionSheetRow; } catch(e) {} return _Forms.FormRow || null; })(),
     G = l.findByStoreName("MessageStore"),
     j = l.findByStoreName("UserStore"),
-    R = l.findByProps("sendMessage", "startEditMessage", "editMessage"),
+    R = l.findByProps("sendMessage", "startEditMessage", "editMessage") || l.findByProps("sendMessage", "editMessage") || {},
     W = l.findByProps("showToast"),
     NV = l.findByProps("useNavigation"),
     Q = l.findByStoreName("GuildStore"),
@@ -1246,6 +1251,21 @@
         return;
       }
     } catch {}
+    try {
+      var sheetMod = l.findByProps("openSheet") || l.findByProps("showSheet");
+      var opener = sheetMod && (sheetMod.openSheet || sheetMod.showSheet);
+      if (typeof opener === "function") {
+        opener("LocalMessageSpooferSheet", { body: PanelSheet });
+        return;
+      }
+    } catch {}
+    try {
+      var lazyMod = l.findByProps("openLazy");
+      if (lazyMod && typeof lazyMod.openLazy === "function") {
+        lazyMod.openLazy(Promise.resolve({ default: PanelSheet }), "LocalMessageSpooferSheet", {});
+        return;
+      }
+    } catch {}
     tt("Couldn't open the panel on this client. Open it from the Plugins list.");
   }
   function fillFromChat() {
@@ -1487,6 +1507,12 @@
         var cmds = null;
         try { cmds = globalThis.vendetta?.commands; } catch {}
         if (!cmds) try { cmds = vendetta?.commands; } catch {}
+        if (!cmds) try { cmds = globalThis.bunny?.commands; } catch {}
+        if (!cmds) try { cmds = bunny?.commands; } catch {}
+        if (!cmds) try { cmds = globalThis.kettu?.commands; } catch {}
+        if (!cmds) try { cmds = kettu?.commands; } catch {}
+        if (!cmds) try { cmds = globalThis.bunny?.api?.commands; } catch {}
+        if (!cmds) try { cmds = globalThis.vendetta?.api?.commands; } catch {}
         reg =
           cmds && typeof cmds.registerCommand === "function"
             ? cmds.registerCommand.bind(cmds)
@@ -2723,13 +2749,16 @@
           }));
       } catch {}
       try {
-        T = n.FluxDispatcher.subscribe("CHANNEL_SELECT", function (s) {
-          const c = s?.channelId;
-          c &&
-            setTimeout(function () {
-              return H(c);
-            }, 500);
-        });
+        var _sub = n.FluxDispatcher.subscribe || n.FluxDispatcher.addChangeListener;
+        if (typeof _sub === "function") {
+          T = _sub.call(n.FluxDispatcher, "CHANNEL_SELECT", function (s) {
+            const c = s?.channelId;
+            c &&
+              setTimeout(function () {
+                return H(c);
+              }, 500);
+          });
+        }
       } catch {}
       try {
       var r = Y();
@@ -2956,7 +2985,7 @@
       } catch {}
       K = [];
       (D && (D(), (D = null)),
-        T && (n.FluxDispatcher.unsubscribe("CHANNEL_SELECT", T), (T = null)),
+        T && ((function() { try { var _unsub = n.FluxDispatcher.unsubscribe || n.FluxDispatcher.removeChangeListener; if (typeof _unsub === "function") _unsub.call(n.FluxDispatcher, "CHANNEL_SELECT", T); else if (typeof T === "function") T(); } catch(e) {} })(), (T = null)),
         b && (b(), (b = null)),
         E.forEach(function (r) {
           return r();
@@ -3004,7 +3033,7 @@
             ? e.storage.customMinute
             : t.getMinutes();
       return n.React.createElement(
-        props && props.inSheet ? n.React.Fragment : v.Forms.Form,
+        props && props.inSheet ? n.React.Fragment : (_Forms.Form || n.React.Fragment),
         {},
         n.React.createElement(A, {
           label: "Local Message Spoofer",
@@ -3232,7 +3261,7 @@
             label: "Link Previews",
             subLabel:
               "Show embeds for links in fake messages (YouTube, websites, images).",
-            trailing: n.React.createElement(v.Forms.FormSwitch, {
+            trailing: n.React.createElement(_Switch, {
               value: e.storage.embedsEnabled !== !1,
               onValueChange: function (o) {
                 e.storage.embedsEnabled = o;
@@ -3302,7 +3331,7 @@
               "UK time (GMT/BST)" + (ukOn() ? " - ON" : " - off"),
             subLabel:
               "Automatic timestamps use UK time, and times you enter are treated as UK. Handles BST/GMT automatically.",
-            trailing: n.React.createElement(v.Forms.FormSwitch, {
+            trailing: n.React.createElement(_Switch, {
               value: ukOn(),
               onValueChange: function (o) {
                 e.storage.ukTime = o;
@@ -3323,7 +3352,7 @@
               : e.storage.useUTC
                 ? "Time will be the same for everyone"
                 : "Time will adjust to viewer's timezone",
-            trailing: n.React.createElement(v.Forms.FormSwitch, {
+            trailing: n.React.createElement(_Switch, {
               value: e.storage.useUTC || !1,
               onValueChange: function (o) {
                 e.storage.useUTC = o;
@@ -3935,7 +3964,7 @@
             label: "Link Previews",
             subLabel:
               "Show embeds for links in fake messages (YouTube, websites, images).",
-            trailing: n.React.createElement(v.Forms.FormSwitch, {
+            trailing: n.React.createElement(_Switch, {
               value: e.storage.embedsEnabled !== !1,
               onValueChange: function (o) {
                 e.storage.embedsEnabled = o;
@@ -3951,7 +3980,7 @@
               "UK time (GMT/BST)" + (ukOn() ? " - ON" : " - off"),
             subLabel:
               "Automatic timestamps use UK time, and times you enter are treated as UK. Handles BST/GMT automatically.",
-            trailing: n.React.createElement(v.Forms.FormSwitch, {
+            trailing: n.React.createElement(_Switch, {
               value: ukOn(),
               onValueChange: function (o) {
                 e.storage.ukTime = o;
@@ -3972,7 +4001,7 @@
               : e.storage.useUTC
                 ? "Time will be the same for everyone"
                 : "Time will adjust to viewer's timezone",
-            trailing: n.React.createElement(v.Forms.FormSwitch, {
+            trailing: n.React.createElement(_Switch, {
               value: e.storage.useUTC || !1,
               onValueChange: function (o) {
                 e.storage.useUTC = o;
@@ -4385,23 +4414,31 @@
     Object.defineProperty(U, "__esModule", { value: !0 }),
     U
   );
-})(
-  {},
-  (vendetta.metro && vendetta.metro.common) || {},
-  vendetta.metro || {},
-  (vendetta.ui && vendetta.ui.components) || {},
-  vendetta.plugin || { storage: (function () {
-    try {
-      var S = vendetta.storage;
-      if (S && typeof S.createStorage === "function" && typeof S.createMMKVBackend === "function") {
-        var st = S.createStorage(S.createMMKVBackend("local-message-spoofer"));
-        if (typeof S.awaitSyncWrapper === "function") { try { S.awaitSyncWrapper(st); } catch (e) {} }
-        return st;
-      }
-    } catch (e) {}
-    return {};
-  })() },
-  vendetta.patcher || {},
-  (vendetta.ui && vendetta.ui.assets) || {},
-  vendetta.utils || {},
-);
+})(...(function() {
+  var g = null;
+  try { g = typeof vendetta !== "undefined" ? vendetta : null; } catch(e) {}
+  if (!g) try { g = typeof bunny !== "undefined" ? bunny : null; } catch(e) {}
+  if (!g) try { g = typeof kettu !== "undefined" ? kettu : null; } catch(e) {}
+  if (!g) try { g = globalThis.vendetta || globalThis.bunny || globalThis.kettu || null; } catch(e) {}
+  if (!g) g = {};
+  return [
+    {},
+    (g.metro && g.metro.common) || {},
+    g.metro || {},
+    (g.ui && g.ui.components) || {},
+    g.plugin || { storage: (function() {
+      try {
+        var S = g.storage;
+        if (S && typeof S.createStorage === "function" && typeof S.createMMKVBackend === "function") {
+          var st = S.createStorage(S.createMMKVBackend("local-message-spoofer"));
+          if (typeof S.awaitSyncWrapper === "function") { try { S.awaitSyncWrapper(st); } catch(e) {} }
+          return st;
+        }
+      } catch(e) {}
+      return {};
+    })() },
+    g.patcher || (g.api && g.api.patcher) || {},
+    (g.ui && g.ui.assets) || {},
+    g.utils || (g.api && g.api.utils) || {},
+  ];
+})());
